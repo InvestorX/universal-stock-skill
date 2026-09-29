@@ -10,5 +10,6 @@
 - [EDINET Canonical財務Mapping](edinet-canonical-mapping.ja.md)
 - [EDINET分析Pipeline](edinet-pipeline.ja.md)
 - [Market Dataモデル](market-data.ja.md)
+- [J-Quants Market Data Adapter](jquants-market.ja.md)
 - [Benchmark仕様](benchmark-spec.ja.md)
 - [RRSI設計](rrsi-design.ja.md)
