@@ -120,6 +120,6 @@ def _value(
 
 
 def _growth_rate(current: Decimal, prior: Decimal) -> float | None:
-    if prior == 0:
+    if prior <= 0:
         return None
     return float((current / prior) - Decimal(1))
