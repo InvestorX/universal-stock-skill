@@ -14,7 +14,6 @@ from universal_stock_skill.data.edinet_pipeline import EDINETCanonicalPipeline
 from universal_stock_skill.data.filing_discovery import AnnualFilingDiscovery
 from universal_stock_skill.data.market import MarketSnapshot
 
-
 JST = ZoneInfo("Asia/Tokyo")
 
 HEADERS = [
