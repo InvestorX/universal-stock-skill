@@ -10,7 +10,11 @@ from .bridge import (
     build_financial_snapshot,
     evaluate_snapshot_readiness,
 )
-from .context import AnalysisContext, build_analysis_context
+from .context import (
+    AnalysisContext,
+    add_peer_comparison_to_context,
+    build_analysis_context,
+)
 from .derivations import (
     DerivationMethod,
     DerivedFinancialInputs,
@@ -83,6 +87,7 @@ __all__ = [
     "StockAnalysisReport",
     "StockAnalysisWorkflow",
     "StockMetrics",
+    "add_peer_comparison_to_context",
     "assemble_financial_snapshot",
     "average_two_periods",
     "build_analysis_context",
