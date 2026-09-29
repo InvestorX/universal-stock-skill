@@ -11,7 +11,6 @@ from universal_stock_skill.benchmark.reference import (
 from universal_stock_skill.evidence.collection import EvidenceItem
 from universal_stock_skill.evidence.models import SourceRecord
 
-
 JST = ZoneInfo("Asia/Tokyo")
 
 TOYOTA_FY2026_SUMMARY_URL = (
@@ -90,14 +89,22 @@ def toyota_7203_reference_case() -> StockReferenceCase:
             _buyback_evidence(),
         ],
         notes=[
-            "Financial statement amounts are stored in million JPY, matching "
-            "Toyota's FY2026 financial summary presentation unit.",
-            "The FY2026 results source is dated May 8, 2026. The 14:00 JST "
-            "timestamp is the official financial-results press-briefing time.",
-            "August 4 evidence uses date-level publication precision normalized "
-            "to 00:00 JST; this reference case's as_of is much later the same quarter.",
-            "Market price is intentionally not frozen in this case; live valuation "
-            "continues to come from the point-in-time MarketDataSource.",
+            (
+                "Financial statement amounts are stored in million JPY, matching "
+                "Toyota's FY2026 financial summary presentation unit."
+            ),
+            (
+                "The FY2026 results source is dated May 8, 2026. The 14:00 JST "
+                "timestamp is the official financial-results press-briefing time."
+            ),
+            (
+                "August 4 evidence uses date-level publication precision normalized "
+                "to 00:00 JST; this reference case's as_of is much later the same quarter."
+            ),
+            (
+                "Market price is intentionally not frozen in this case; live valuation "
+                "continues to come from the point-in-time MarketDataSource."
+            ),
         ],
     )
 
