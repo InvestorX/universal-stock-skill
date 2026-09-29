@@ -23,6 +23,8 @@ from universal_stock_skill.analysis.trends import (
 from universal_stock_skill.data.canonical import CanonicalMetric
 from universal_stock_skill.data.canonical_quality import CanonicalMappingQuality
 from universal_stock_skill.data.market import MarketSnapshot
+from universal_stock_skill.evidence.collection import EvidenceItem
+from universal_stock_skill.evidence.models import SourceRecord
 
 
 def bundle() -> StockAnalysisDataBundle:
@@ -130,7 +132,8 @@ def test_context_builds_stable_evidence_and_metric_ids() -> None:
     assert context.deterministic_metrics["metric:per"] == 9.375
     assert "trend:revenue" in context.trends
     assert any("ROIC is unavailable" in item for item in context.limitations)
-    assert any("does not contain peer" in item for item in context.limitations)
+    assert "Deterministic peer comparison data is unavailable." in context.limitations
+    assert "News evidence is unavailable." in context.limitations
 
 
 def test_context_rejects_future_evidence() -> None:
@@ -151,3 +154,72 @@ def test_context_rejects_future_evidence() -> None:
             derivations={},
             limitations=[],
         )
+
+
+def test_context_can_include_qualitative_evidence_and_peer_metrics() -> None:
+    subject = bundle()
+    peer = bundle().model_copy(
+        update={
+            "symbol": "6758",
+            "filing": bundle().filing.model_copy(
+                update={
+                    "original_doc_id": "PEER",
+                    "selected_doc_id": "PEER",
+                    "correction_doc_ids": [],
+                    "is_corrected": False,
+                    "filer_name": "Peer Corp",
+                }
+            ),
+            "market": bundle().market.model_copy(
+                update={
+                    "symbol": "6758",
+                    "price": 2500,
+                    "market_cap": 50_000,
+                }
+            ),
+            "assembly": bundle().assembly.model_copy(
+                update={
+                    "snapshot": bundle().assembly.snapshot.model_copy(
+                        update={
+                            "symbol": "6758",
+                            "price": 2500,
+                            "market_cap": 50_000,
+                        }
+                    )
+                }
+            ),
+            "metrics": bundle().metrics.model_copy(
+                update={
+                    "per": 15.0,
+                    "pbr": 1.5,
+                }
+            ),
+        }
+    )
+    news = EvidenceItem(
+        symbol="7203",
+        excerpt="A point-in-time news excerpt.",
+        tags=["earnings"],
+        record=SourceRecord(
+            source_id="news:demo",
+            source_type="news",
+            title="Demo news",
+            published_at=datetime(2026, 9, 29, 10, 0, tzinfo=UTC),
+            retrieved_at=datetime(2026, 9, 29, 11, 0, tzinfo=UTC),
+            url="https://example.com/news/demo",
+        ),
+    )
+
+    context = build_analysis_context(
+        subject,
+        evidence_items=[news],
+        peer_bundles=[peer],
+    )
+
+    assert "news:demo" in context.evidence_ids
+    assert "peer:6758:edinet:PEER" in context.evidence_ids
+    assert context.peer_metrics["peer:6758:per"] == 15.0
+    assert "peer_comparison" in context.authoritative_facts
+    assert "qualitative_evidence" in context.authoritative_facts
+    assert "Deterministic peer comparison data is unavailable." not in context.limitations
+    assert "News evidence is unavailable." not in context.limitations
