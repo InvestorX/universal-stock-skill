@@ -8,6 +8,7 @@ from zoneinfo import ZoneInfo
 import pytest
 
 from universal_stock_skill.analysis.orchestrator import StockAnalysisOrchestrator
+from universal_stock_skill.data.canonical import CanonicalMetric
 from universal_stock_skill.data.edinet import EDINETDocument
 from universal_stock_skill.data.edinet_pipeline import EDINETCanonicalPipeline
 from universal_stock_skill.data.filing_discovery import AnnualFilingDiscovery
@@ -142,12 +143,7 @@ async def test_stock_orchestrator_runs_end_to_end_without_llm() -> None:
     assert result.mapping_quality.coverage_ratio > 0
     assert result.snapshot_readiness.ready
 
-    revenue_trend = result.trends.get(
-        __import__(
-            "universal_stock_skill.data",
-            fromlist=["CanonicalMetric"],
-        ).CanonicalMetric.REVENUE
-    )
+    revenue_trend = result.trends.get(CanonicalMetric.REVENUE)
     assert revenue_trend is not None
     assert revenue_trend.year_over_year == pytest.approx(0.10)
 
