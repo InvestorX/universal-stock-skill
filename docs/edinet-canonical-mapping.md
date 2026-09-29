@@ -74,9 +74,23 @@ Fallback matching is intentionally narrow.
 
 - runs only after exact standard mapping fails
 - accepts company-extension namespaces used by annual securities reports
-- currently targets revenue and operating income
+- currently targets revenue, operating income, and net income
 - requires SummaryOfBusinessResults or KeyFinancialData-style local names
-- excludes Intersegment, Segment, Cost, Expense, PerShare, Ratio, and similar false-positive tokens
+- uses metric-specific exclusion tokens such as Intersegment, Cost, Gain, Loss, Proceeds, Ordinary, BeforeTax, Segment, PerShare, and Ratio
 - records match_type=extension_fallback and keeps the original element ID
 
 The next step is to validate these rules against real filings and then connect CanonicalFinancialSet to FinancialSnapshot.
+
+
+## Accounting-standard inference
+
+Company-extension element names do not always contain the accounting-standard token.
+
+For extension fallback, the mapper therefore inspects current-year facts across the filing:
+
+1. US-GAAP markers take precedence when current-year element IDs contain USGAAP / us-gaap.
+2. IFRS is selected when current-year element IDs contain IFRS / ifrs-full.
+3. Otherwise, a filing with current-year facts defaults to J-GAAP.
+4. With no current-year evidence, the standard remains unknown.
+
+Exact standard-taxonomy mappings still carry their explicitly declared accounting standard.
