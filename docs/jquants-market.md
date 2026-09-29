@@ -70,3 +70,15 @@ await source.aclose()
 ~~~
 
 The Agent Skill itself never embeds a J-Quants API key.
+
+
+## Diagnostic CLI
+
+With JQUANTS_API_KEY set:
+
+~~~bash
+python scripts/inspect_jquants_market.py 7203 \
+  --as-of 2026-09-29T16:00:00+09:00
+~~~
+
+The command prints the selected point-in-time MarketSnapshot as JSON.
