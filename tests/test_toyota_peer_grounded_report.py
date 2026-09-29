@@ -13,7 +13,6 @@ from universal_stock_skill.benchmark.toyota_analysis import (
 )
 from universal_stock_skill.llm import LLMRequest, LLMResponse
 
-
 JST = ZoneInfo("Asia/Tokyo")
 
 
