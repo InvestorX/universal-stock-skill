@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 from universal_stock_skill.analysis.orchestrator import StockAnalysisDataBundle
 from universal_stock_skill.analysis.report import EvidenceRef
@@ -18,6 +18,31 @@ class AnalysisContext(BaseModel):
     trends: dict[str, dict[str, Any]]
     derivations: dict[str, Any]
     limitations: list[str]
+
+    @model_validator(mode="after")
+    def validate_point_in_time(self) -> AnalysisContext:
+        if (
+            self.requested_as_of.tzinfo is None
+            or self.requested_as_of.utcoffset() is None
+        ):
+            raise ValueError("requested_as_of must be timezone-aware")
+
+        for item in self.evidence:
+            if item.published_at is None:
+                continue
+            if (
+                item.published_at.tzinfo is None
+                or item.published_at.utcoffset() is None
+            ):
+                raise ValueError(
+                    f"evidence {item.source_id} published_at must be timezone-aware"
+                )
+            if item.published_at > self.requested_as_of:
+                raise ValueError(
+                    f"evidence {item.source_id} is newer than requested_as_of"
+                )
+
+        return self
 
     @property
     def evidence_ids(self) -> set[str]:
