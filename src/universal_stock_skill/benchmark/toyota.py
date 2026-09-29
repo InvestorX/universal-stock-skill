@@ -45,6 +45,10 @@ def toyota_7203_reference_case() -> StockReferenceCase:
                     "owners_equity": Decimal(39_918_854),
                     "operating_cash_flow": Decimal(5_472_920),
                     "income_tax_expense": Decimal(1_167_234),
+                    "capex_fixed_assets_excluding_leased_equipment": Decimal(2_148_192),
+                    "capex_equipment_leased_to_others": Decimal(2_766_352),
+                    "capex_intangible": Decimal(378_804),
+                    "capex_cash_outflow": Decimal(5_293_348),
                 },
                 per_share_yen={
                     "eps_basic": Decimal("295.25"),
@@ -55,6 +59,12 @@ def toyota_7203_reference_case() -> StockReferenceCase:
                     "roe": Decimal("0.101"),
                     "operating_margin": Decimal("0.074"),
                     "owners_equity_ratio": Decimal("0.378"),
+                },
+                share_counts={
+                    "issued_end": 15_794_987_460,
+                    "treasury_end": 2_761_602_986,
+                    "outstanding_end": 13_033_384_474,
+                    "average_outstanding": 13_033_273_748,
                 },
             ),
             FinancialReferencePeriod(
@@ -80,6 +90,12 @@ def toyota_7203_reference_case() -> StockReferenceCase:
                     "roe": Decimal("0.136"),
                     "operating_margin": Decimal("0.100"),
                     "owners_equity_ratio": Decimal("0.384"),
+                },
+                share_counts={
+                    "issued_end": 15_794_987_460,
+                    "treasury_end": 2_746_057_686,
+                    "outstanding_end": 13_048_929_774,
+                    "average_outstanding": 13_252_455_897,
                 },
             ),
         ],
