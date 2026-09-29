@@ -47,3 +47,21 @@ fitness = mean(score_by_model)
 - Evidenceやsource metadataを捏造
 - 決定論的期待値を許容誤差外へ変更
 - Benchmark Case固有のhard-code
+
+
+## 実在企業Reference Case
+
+Synthetic CaseはEdge Case検証に有効ですが、決定論的な財務ロジックは実際の企業開示でもRegression Testする必要があります。
+
+最初の固定Real-company Case:
+
+- `toyota-7203-fy2026`
+- トヨタ自動車
+- IFRS
+- FY2025 / FY2026公式決算要旨の値
+- 2026年Toyota公式IR Evidence
+- Point-in-Time cutoff: 2026-09-29T23:59:00+09:00
+
+詳細は [トヨタ7203 Reference Case](toyota-reference-case.ja.md) を参照してください。
+
+Reference Caseは**FixtureであってCandidate固有のHintではありません**。Benchmark Scoreを上げるためにcase_id、企業名、証券コードへ分岐するPrompt/Workflowを作ることは禁止します。

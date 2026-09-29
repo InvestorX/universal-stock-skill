@@ -47,3 +47,21 @@ A run is invalid if it:
 - fabricates evidence or source metadata
 - changes a deterministic expected value outside tolerance
 - includes benchmark-case-specific hard-coded behavior
+
+
+## Real-company reference cases
+
+Synthetic benchmark cases remain useful for edge conditions, but deterministic finance code also needs regression checks against real issuer disclosures.
+
+The first frozen real-company case is:
+
+- `toyota-7203-fy2026`
+- Toyota Motor Corporation
+- IFRS
+- FY2025 / FY2026 official financial-summary values
+- official 2026 IR evidence
+- point-in-time cutoff: 2026-09-29T23:59:00+09:00
+
+See [Toyota 7203 reference case](toyota-reference-case.md).
+
+Reference cases are **fixtures, not candidate-specific hints**. Candidate prompts or workflows must not branch on a case ID, company name, or security code to improve a benchmark score.
