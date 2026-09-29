@@ -345,9 +345,13 @@ def _fact(
         element_id=f"toyota_ir:{metric.value}",
         item_name=metric.value,
         context_id=(
-            "CurrentYearDuration"
+            ("CurrentYearInstant" if period_type == "時点" else "CurrentYearDuration")
             if current
-            else f"Prior{year_offset}YearDuration"
+            else (
+                f"Prior{year_offset}YearInstant"
+                if period_type == "時点"
+                else f"Prior{year_offset}YearDuration"
+            )
         ),
         relative_year="当期" if current else "前期",
         consolidation="連結",
