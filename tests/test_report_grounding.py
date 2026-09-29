@@ -153,3 +153,23 @@ def test_interpretation_can_be_explicit_without_new_fact_reference() -> None:
     grounded = ground_report(report, context())
 
     assert grounded.claims[0].kind == ClaimKind.INTERPRETATION
+
+
+def test_duplicate_claim_ids_are_rejected() -> None:
+    report = report_with_claims(
+        GroundedClaim(
+            claim_id="duplicate",
+            text="PER is 12x.",
+            kind=ClaimKind.CALCULATION,
+            metric_ids=["metric:per"],
+        ),
+        GroundedClaim(
+            claim_id="duplicate",
+            text="ROE is 10%.",
+            kind=ClaimKind.CALCULATION,
+            metric_ids=["metric:roe"],
+        ),
+    )
+
+    with pytest.raises(ReportGroundingError, match="claim_id values must be unique"):
+        ground_report(report, context())
