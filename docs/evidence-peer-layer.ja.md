@@ -122,6 +122,33 @@ context = build_analysis_context(
 
 Peerデータを渡しただけでNewsやIR Evidenceが存在することにはしません。Newsがなければ「News evidence is unavailable」は残ります。
 
+## 汎用Subject + Peer Orchestration
+
+Productionでも、1つのPoint-in-Time cutoffからSubjectと全Peerをまとめて生成できます。
+
+~~~python
+peer = PeerAnalysisOrchestrator(stock_orchestrator)
+result = await peer.analyze(
+    "7203",
+    peer_symbols=["7267", "7201"],
+    as_of=as_of,
+    years=5,
+)
+context = result.build_context()
+~~~
+
+OrchestratorはSymbolを正規化し、Provider I/O前に重複を拒否し、全銘柄へ完全に同じ `as_of` を適用します。Peerの指定順を保持したまま決定論的な `PeerComparisonSet` を生成します。
+
+CLI:
+
+~~~bash
+python scripts/analyze_peers.py 7203 \
+  --peers 7267 7201 \
+  --as-of 2026-09-29T15:30:00+09:00
+~~~
+
+Production Metric PipelineではEPSが0以下の場合、PERを利用不可とします。負のPERを通常の「低PER」と誤解する経路を防ぎます。
+
 ## Provider方針
 
 Core Runtimeは特定News APIを必須にしません。
