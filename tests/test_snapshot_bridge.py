@@ -6,6 +6,7 @@ import pytest
 from universal_stock_skill.analysis.bridge import (
     MissingCanonicalMetric,
     SnapshotBridgeInputs,
+    evaluate_snapshot_readiness,
     build_financial_snapshot,
 )
 from universal_stock_skill.data.canonical import (
@@ -72,3 +73,43 @@ def test_missing_required_canonical_metric_raises() -> None:
 
     with pytest.raises(MissingCanonicalMetric):
         build_financial_snapshot(canonical, bridge_inputs())
+
+
+def test_snapshot_readiness_reports_missing_and_fallback_metrics() -> None:
+    canonical = CanonicalFinancialSet(
+        facts=[
+            canonical_fact(CanonicalMetric.REVENUE, "100"),
+            canonical_fact(CanonicalMetric.NET_INCOME, "10").model_copy(
+                update={"match_type": MappingMatchType.EXTENSION_FALLBACK}
+            ),
+            canonical_fact(CanonicalMetric.EPS, "5"),
+            canonical_fact(CanonicalMetric.BPS, "50"),
+            canonical_fact(CanonicalMetric.CF_OPERATING, "20"),
+        ],
+        missing=[CanonicalMetric.OPERATING_INCOME],
+    )
+
+    readiness = evaluate_snapshot_readiness(canonical)
+
+    assert not readiness.ready
+    assert readiness.missing_metrics == [CanonicalMetric.OPERATING_INCOME]
+    assert readiness.fallback_metrics == [CanonicalMetric.NET_INCOME]
+
+
+def test_snapshot_readiness_is_true_when_required_filing_metrics_exist() -> None:
+    canonical = CanonicalFinancialSet(
+        facts=[
+            canonical_fact(CanonicalMetric.REVENUE, "100"),
+            canonical_fact(CanonicalMetric.OPERATING_INCOME, "12"),
+            canonical_fact(CanonicalMetric.NET_INCOME, "8"),
+            canonical_fact(CanonicalMetric.EPS, "5"),
+            canonical_fact(CanonicalMetric.BPS, "50"),
+            canonical_fact(CanonicalMetric.CF_OPERATING, "20"),
+        ],
+        missing=[],
+    )
+
+    readiness = evaluate_snapshot_readiness(canonical)
+
+    assert readiness.ready
+    assert readiness.missing_metrics == []
