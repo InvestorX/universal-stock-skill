@@ -11,6 +11,8 @@ from universal_stock_skill.analysis.report import (
     ClaimKind,
     EvidenceRef,
     GroundedClaim,
+    GroundedReportSection,
+    PeerComparisonAnalysis,
     StockAnalysisReport,
 )
 
@@ -191,3 +193,98 @@ def test_peer_metric_id_is_valid_grounding_reference() -> None:
     grounded = ground_report(report, context())
 
     assert grounded.claims[0].metric_ids == ["peer:6758:per"]
+
+
+def test_structured_peer_analysis_accepts_peer_grounded_claims() -> None:
+    report = report_with_claims(
+        GroundedClaim(
+            claim_id="peer-per",
+            text="The peer PER is 15x.",
+            kind=ClaimKind.CALCULATION,
+            metric_ids=["peer:6758:per"],
+        )
+    ).model_copy(
+        update={
+            "peer_analysis": PeerComparisonAnalysis(
+                valuation=GroundedReportSection(
+                    text="The peer valuation comparison is grounded.",
+                    claim_ids=["peer-per"],
+                )
+            )
+        }
+    )
+
+    grounded = ground_report(report, context())
+
+    assert grounded.peer_analysis is not None
+    assert grounded.peer_analysis.valuation is not None
+    assert grounded.peer_analysis.valuation.claim_ids == ["peer-per"]
+
+
+def test_structured_peer_analysis_rejects_unknown_claim_id() -> None:
+    report = report_with_claims(
+        GroundedClaim(
+            claim_id="peer-per",
+            text="The peer PER is 15x.",
+            kind=ClaimKind.CALCULATION,
+            metric_ids=["peer:6758:per"],
+        )
+    ).model_copy(
+        update={
+            "peer_analysis": PeerComparisonAnalysis(
+                valuation=GroundedReportSection(
+                    text="Unknown claim reference.",
+                    claim_ids=["missing-peer-claim"],
+                )
+            )
+        }
+    )
+
+    with pytest.raises(ReportGroundingError, match="unknown claim_ids"):
+        ground_report(report, context())
+
+
+def test_structured_peer_analysis_rejects_non_peer_grounded_claim() -> None:
+    report = report_with_claims(
+        GroundedClaim(
+            claim_id="subject-per",
+            text="Subject PER is 12x.",
+            kind=ClaimKind.CALCULATION,
+            metric_ids=["metric:per"],
+        )
+    ).model_copy(
+        update={
+            "peer_analysis": PeerComparisonAnalysis(
+                valuation=GroundedReportSection(
+                    text="This is not grounded in peer data.",
+                    claim_ids=["subject-per"],
+                )
+            )
+        }
+    )
+
+    with pytest.raises(ReportGroundingError, match="must reference a peer metric"):
+        ground_report(report, context())
+
+
+def test_structured_peer_analysis_requires_peer_metrics() -> None:
+    report = report_with_claims(
+        GroundedClaim(
+            claim_id="interpretation",
+            text="A peer interpretation.",
+            kind=ClaimKind.INTERPRETATION,
+        )
+    ).model_copy(
+        update={
+            "peer_analysis": PeerComparisonAnalysis(
+                competitive_position=GroundedReportSection(
+                    text="Competitive positioning.",
+                    claim_ids=["interpretation"],
+                )
+            )
+        }
+    )
+    no_peer_context = context().model_copy(update={"peer_metrics": {}})
+
+    with pytest.raises(ReportGroundingError, match="requires peer metrics"):
+        ground_report(report, no_peer_context)

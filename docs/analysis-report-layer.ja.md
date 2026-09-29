@@ -81,6 +81,43 @@ Scenarioは事実としての予測ではなく、assumptionとして明示し�
 
 Evidenceがない項目をLLMが創作して埋めてはいけません。空欄にするかlimitationを明示します。
 
+## 構造化Peer Analysis
+
+Peer Metricが存在する場合、後方互換の自由記述 `peer_comparison` に加えて、最終Reportで `peer_analysis` を使用できます。
+
+`peer_analysis` は次のGrounded Subsectionを持ちます。
+
+- profitability
+- valuation
+- growth
+- cash flow
+- competitive position
+
+各Subsectionは本文と1つ以上の `claim_ids` を持ちます。IDはReport内のClaimを参照し、リンクされた各Claimは少なくとも1つの `peer:` Metric IDまたは `peer:` Evidence IDを参照しなければなりません。
+
+~~~json
+{
+  "peer_analysis": {
+    "profitability": {
+      "text": "供給された比較では対象銘柄のMarginとROEが高い。",
+      "claim_ids": ["peer-operating-margin", "peer-roe"]
+    },
+    "valuation": {
+      "text": "赤字Peerでは通常のPER比較を利用できない。",
+      "claim_ids": ["peer-negative-per"]
+    }
+  }
+}
+~~~
+
+Grounding Layerは次を拒否します。
+
+- `AnalysisContext.peer_metrics` が空なのに構造化Peer Analysisを出す
+- 存在しないClaim IDを参照する
+- Peer Sectionから参照しているのに `peer:` Metric/Evidenceを1つも持たないClaim
+
+これによりPeer Narrativeを、AnalysisContextで使った決定論的な比較Rowへ追跡できます。
+
 ## Standalone Runtime
 
 StockAnalysisWorkflowは3つの入口を持ちます。

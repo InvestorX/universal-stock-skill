@@ -4,6 +4,7 @@ from universal_stock_skill.analysis.context import AnalysisContext
 from universal_stock_skill.analysis.report import (
     ClaimKind,
     EvidenceRef,
+    GroundedClaim,
     StockAnalysisReport,
 )
 
@@ -58,6 +59,8 @@ def ground_report(
 
         referenced_evidence.update(claim.evidence_ids)
 
+    _validate_peer_analysis(report, context)
+
     evidence: list[EvidenceRef] = [
         known_evidence[source_id]
         for source_id in sorted(referenced_evidence)
@@ -72,4 +75,55 @@ def ground_report(
             "evidence": evidence,
             "limitations": limitations,
         }
+    )
+
+
+def _validate_peer_analysis(
+    report: StockAnalysisReport,
+    context: AnalysisContext,
+) -> None:
+    peer_analysis = report.peer_analysis
+    if peer_analysis is None:
+        return
+    if not context.peer_metrics:
+        raise ReportGroundingError(
+            "structured peer analysis requires peer metrics in AnalysisContext"
+        )
+
+    known_claims = {
+        claim.claim_id: claim
+        for claim in report.claims
+    }
+    sections = {
+        "profitability": peer_analysis.profitability,
+        "valuation": peer_analysis.valuation,
+        "growth": peer_analysis.growth,
+        "cash_flow": peer_analysis.cash_flow,
+        "competitive_position": peer_analysis.competitive_position,
+    }
+
+    for section_name, section in sections.items():
+        if section is None:
+            continue
+
+        unknown_claim_ids = set(section.claim_ids) - set(known_claims)
+        if unknown_claim_ids:
+            raise ReportGroundingError(
+                f"peer analysis {section_name} references unknown claim_ids: "
+                + ", ".join(sorted(unknown_claim_ids))
+            )
+
+        for claim_id in section.claim_ids:
+            claim = known_claims[claim_id]
+            if not _is_peer_grounded(claim):
+                raise ReportGroundingError(
+                    f"peer analysis {section_name} claim {claim_id} "
+                    "must reference a peer metric or peer evidence ID"
+                )
+
+
+def _is_peer_grounded(claim: GroundedClaim) -> bool:
+    return any(
+        reference.startswith("peer:")
+        for reference in [*claim.evidence_ids, *claim.metric_ids]
     )

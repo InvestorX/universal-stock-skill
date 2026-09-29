@@ -25,6 +25,14 @@ Do not invent an ID that is not present in the supplied context.
 
 Every material fact or calculation must identify its supporting evidence ID or deterministic metric/trend/derivation ID.
 
+## Structured peer sections
+
+When peer metrics are supplied, prefer structured `peer_analysis` subsections for profitability, valuation, growth, cash flow, and competitive position.
+
+Every populated subsection must list `claim_ids` that exist in the report. Every linked claim must cite at least one supplied `peer:` metric ID or `peer:` evidence ID.
+
+Do not attach a subject-only claim to a peer section merely because its prose mentions competitors.
+
 ## Missing source classes
 
 If peer, news, guidance, or catalyst evidence was not supplied, do not fill those sections from model memory.

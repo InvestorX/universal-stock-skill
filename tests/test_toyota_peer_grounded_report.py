@@ -81,6 +81,44 @@ class ToyotaPeerFakeProvider:
                     "~10.15%; Honda: ~0.5%, -1.9%, -3.5%; Nissan: ~-4.9%, "
                     "0.5%, -10.9%."
                 ),
+                "peer_analysis": {
+                    "profitability": {
+                        "text": (
+                            "Toyota has the stronger profitability profile in "
+                            "the supplied common-period comparison."
+                        ),
+                        "claim_ids": [
+                            "peer-operating-margin",
+                            "peer-roe",
+                        ],
+                    },
+                    "valuation": {
+                        "text": (
+                            "Honda and Nissan conventional PER comparison is "
+                            "unavailable because common-period EPS is negative."
+                        ),
+                        "claim_ids": ["peer-negative-per"],
+                    },
+                    "growth": {
+                        "text": (
+                            "Toyota has the higher revenue growth rate in the "
+                            "supplied common-period comparison."
+                        ),
+                        "claim_ids": ["peer-revenue-growth"],
+                    },
+                    "competitive_position": {
+                        "text": (
+                            "The supplied profitability and growth metrics place "
+                            "Toyota ahead of the two reference peers on those "
+                            "specific dimensions."
+                        ),
+                        "claim_ids": [
+                            "peer-revenue-growth",
+                            "peer-operating-margin",
+                            "peer-roe",
+                        ],
+                    },
+                },
                 "growth_drivers": [],
                 "catalysts": [],
                 "risks": [
@@ -216,6 +254,15 @@ async def test_toyota_peer_grounded_report_uses_real_peer_evidence() -> None:
     assert report.peer_comparison is not None
     assert "Honda" in report.peer_comparison
     assert "Nissan" in report.peer_comparison
+    assert report.peer_analysis is not None
+    assert report.peer_analysis.profitability is not None
+    assert report.peer_analysis.valuation is not None
+    assert report.peer_analysis.growth is not None
+    assert report.peer_analysis.competitive_position is not None
+    assert report.peer_analysis.profitability.claim_ids == [
+        "peer-operating-margin",
+        "peer-roe",
+    ]
 
     evidence_ids = {item.source_id for item in report.evidence}
     assert evidence_ids == {

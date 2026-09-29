@@ -49,6 +49,8 @@ from .report import (
     ClaimKind,
     EvidenceRef,
     GroundedClaim,
+    GroundedReportSection,
+    PeerComparisonAnalysis,
     StockAnalysisReport,
 )
 from .trends import (
@@ -74,10 +76,12 @@ __all__ = [
     "FinancialSnapshotAssemblyError",
     "FinancialSnapshotAssemblyResult",
     "GroundedClaim",
+    "GroundedReportSection",
     "MissingCanonicalMetric",
     "MissingMarketCapitalization",
     "PeerAnalysisOrchestrator",
     "PeerAnalysisResult",
+    "PeerComparisonAnalysis",
     "PeerComparisonError",
     "PeerComparisonSet",
     "PeerMetricRow",
