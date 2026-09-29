@@ -7,8 +7,15 @@ from datetime import datetime
 from pydantic import BaseModel
 
 from universal_stock_skill.analysis.context import AnalysisContext, build_analysis_context
-from universal_stock_skill.analysis.orchestrator import StockAnalysisDataBundle, StockAnalysisOrchestrator
-from universal_stock_skill.analysis.peers import PeerComparisonError, PeerComparisonSet, build_peer_comparison
+from universal_stock_skill.analysis.orchestrator import (
+    StockAnalysisDataBundle,
+    StockAnalysisOrchestrator,
+)
+from universal_stock_skill.analysis.peers import (
+    PeerComparisonError,
+    PeerComparisonSet,
+    build_peer_comparison,
+)
 from universal_stock_skill.evidence.collection import EvidenceItem
 
 
