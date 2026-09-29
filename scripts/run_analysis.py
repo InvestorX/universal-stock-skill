@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from universal_stock_skill.analysis import FinancialSnapshot, calculate_stock_metrics
 
@@ -11,7 +11,7 @@ def build_demo_snapshot(symbol: str) -> FinancialSnapshot:
     """Synthetic data only. Real market-data connectors are added in Phase 3."""
     return FinancialSnapshot(
         symbol=symbol,
-        as_of=datetime(2026, 1, 1, tzinfo=timezone.utc),
+        as_of=datetime(2026, 1, 1, tzinfo=UTC),
         price=1000.0,
         revenue=10000.0,
         operating_income=1200.0,
