@@ -31,10 +31,6 @@ HONDA_FY2026_RESULTS_URL = (
     "https://global.honda/en/investors/library/financialresult/main/08/"
     "teaserItems3/018/linkList/01/link/FYE202603_4Q_financial_result_e_1.pdf"
 )
-HONDA_FY2026_REFERENCE_URL = (
-    "https://global.honda/en/investors/library/financialresult/main/08/"
-    "teaserItems3/018/linkList/05/link/FYE202603_4Q_financial_reference_e_1.pdf"
-)
 NISSAN_FY2025_RESULTS_URL = (
     "https://www.nissan-global.com/EN/IR/FINANCIAL_RESULTS/ASSETS/DATA/"
     "2025/20254th_financialresult_393_e.pdf"
@@ -181,10 +177,10 @@ def honda_7267_reference() -> AutomotivePeerReference:
                 record=SourceRecord(
                     source_id="peer:7267:ir:fy2026-cashflow-reference",
                     source_type="company_ir",
-                    title="Honda FY2026 Financial Results Reference Materials",
+                    title="Honda FY2026 Consolidated Cash Flow",
                     published_at=datetime(2026, 5, 14, 0, 0, tzinfo=JST),
                     retrieved_at=datetime(2026, 9, 29, 23, 0, tzinfo=JST),
-                    url=HONDA_FY2026_REFERENCE_URL,
+                    url=HONDA_FY2026_RESULTS_URL,
                     metadata={
                         "security_code": "7267",
                         "period_end": "2026-03-31",
