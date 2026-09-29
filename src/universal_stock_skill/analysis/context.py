@@ -1,12 +1,15 @@
 from __future__ import annotations
 
+from collections.abc import Sequence
 from datetime import datetime
 from typing import Any
 
 from pydantic import BaseModel, Field, model_validator
 
 from universal_stock_skill.analysis.orchestrator import StockAnalysisDataBundle
+from universal_stock_skill.analysis.peers import build_peer_comparison
 from universal_stock_skill.analysis.report import EvidenceRef
+from universal_stock_skill.evidence.collection import EvidenceItem
 
 
 class AnalysisContext(BaseModel):
@@ -15,6 +18,7 @@ class AnalysisContext(BaseModel):
     evidence: list[EvidenceRef]
     authoritative_facts: dict[str, Any]
     deterministic_metrics: dict[str, float | None]
+    peer_metrics: dict[str, float | None] = Field(default_factory=dict)
     trends: dict[str, dict[str, Any]]
     derivations: dict[str, Any]
     limitations: list[str]
@@ -26,6 +30,10 @@ class AnalysisContext(BaseModel):
             or self.requested_as_of.utcoffset() is None
         ):
             raise ValueError("requested_as_of must be timezone-aware")
+
+        source_ids = [item.source_id for item in self.evidence]
+        if len(source_ids) != len(set(source_ids)):
+            raise ValueError("evidence source_id values must be unique")
 
         for item in self.evidence:
             if item.published_at is None:
@@ -57,18 +65,108 @@ class AnalysisContext(BaseModel):
         }
         return {
             *self.deterministic_metrics,
+            *self.peer_metrics,
             *self.trends,
             *derivation_ids,
         }
 
 
-def build_analysis_context(bundle: StockAnalysisDataBundle) -> AnalysisContext:
-    filing_source_id = f"edinet:{bundle.filing.selected_doc_id}"
-    market_source_id = (
-        f"market:{bundle.market.source}:{bundle.market.observed_at.isoformat()}"
+def build_analysis_context(
+    bundle: StockAnalysisDataBundle,
+    *,
+    evidence_items: Sequence[EvidenceItem] = (),
+    peer_bundles: Sequence[StockAnalysisDataBundle] = (),
+) -> AnalysisContext:
+    evidence = _bundle_evidence_refs(bundle)
+
+    for item in evidence_items:
+        evidence.append(
+            EvidenceRef(
+                source_id=item.record.source_id,
+                title=item.record.title,
+                url=item.record.url,
+                published_at=item.record.published_at,
+            )
+        )
+
+    peer_metrics: dict[str, float | None] = {}
+    peer_comparison = None
+    if peer_bundles:
+        peer_comparison = build_peer_comparison(
+            bundle,
+            list(peer_bundles),
+        )
+        peer_metrics = peer_comparison.metric_values()
+        for peer in peer_bundles:
+            evidence.extend(
+                _bundle_evidence_refs(
+                    peer,
+                    prefix=f"peer:{peer.symbol.strip().upper()}:",
+                )
+            )
+
+    snapshot = bundle.assembly.snapshot
+    authoritative_facts: dict[str, Any] = {
+        "filing": bundle.filing.model_dump(mode="json"),
+        "market": bundle.market.model_dump(mode="json"),
+        "financial_snapshot": snapshot.model_dump(mode="json"),
+        "mapping_quality": bundle.mapping_quality.model_dump(mode="json"),
+        "snapshot_readiness": bundle.snapshot_readiness.model_dump(mode="json"),
+    }
+
+    if evidence_items:
+        authoritative_facts["qualitative_evidence"] = [
+            item.model_dump(mode="json")
+            for item in evidence_items
+        ]
+
+    if peer_comparison is not None:
+        authoritative_facts["peer_comparison"] = peer_comparison.model_dump(
+            mode="json"
+        )
+
+    deterministic_metrics = {
+        f"metric:{key}": value
+        for key, value in bundle.metrics.model_dump(mode="json").items()
+    }
+
+    trends = {
+        f"trend:{trend.metric.value}": trend.model_dump(mode="json")
+        for trend in bundle.trends.trends
+    }
+
+    derivations = bundle.assembly.derived.model_dump(mode="json")
+    limitations = _build_limitations(
+        bundle,
+        evidence_items=evidence_items,
+        peer_bundles=peer_bundles,
     )
 
-    evidence = [
+    return AnalysisContext(
+        symbol=bundle.symbol,
+        requested_as_of=bundle.requested_as_of,
+        evidence=evidence,
+        authoritative_facts=authoritative_facts,
+        deterministic_metrics=deterministic_metrics,
+        peer_metrics=peer_metrics,
+        trends=trends,
+        derivations=derivations,
+        limitations=limitations,
+    )
+
+
+def _bundle_evidence_refs(
+    bundle: StockAnalysisDataBundle,
+    *,
+    prefix: str = "",
+) -> list[EvidenceRef]:
+    filing_source_id = f"{prefix}edinet:{bundle.filing.selected_doc_id}"
+    market_source_id = (
+        f"{prefix}market:{bundle.market.source}:"
+        f"{bundle.market.observed_at.isoformat()}"
+    )
+
+    return [
         EvidenceRef(
             source_id=filing_source_id,
             title=(
@@ -87,28 +185,15 @@ def build_analysis_context(bundle: StockAnalysisDataBundle) -> AnalysisContext:
         ),
     ]
 
-    snapshot = bundle.assembly.snapshot
-    authoritative_facts: dict[str, Any] = {
-        "filing": bundle.filing.model_dump(mode="json"),
-        "market": bundle.market.model_dump(mode="json"),
-        "financial_snapshot": snapshot.model_dump(mode="json"),
-        "mapping_quality": bundle.mapping_quality.model_dump(mode="json"),
-        "snapshot_readiness": bundle.snapshot_readiness.model_dump(mode="json"),
-    }
 
-    deterministic_metrics = {
-        f"metric:{key}": value
-        for key, value in bundle.metrics.model_dump(mode="json").items()
-    }
-
-    trends = {
-        f"trend:{trend.metric.value}": trend.model_dump(mode="json")
-        for trend in bundle.trends.trends
-    }
-
-    derivations = bundle.assembly.derived.model_dump(mode="json")
-
+def _build_limitations(
+    bundle: StockAnalysisDataBundle,
+    *,
+    evidence_items: Sequence[EvidenceItem],
+    peer_bundles: Sequence[StockAnalysisDataBundle],
+) -> list[str]:
     limitations: list[str] = []
+
     if bundle.mapping_quality.missing_metrics:
         limitations.append(
             "Canonical mapping is missing metrics: "
@@ -117,6 +202,7 @@ def build_analysis_context(bundle: StockAnalysisDataBundle) -> AnalysisContext:
                 for metric in bundle.mapping_quality.missing_metrics
             )
         )
+
     if bundle.mapping_quality.fallback_metrics:
         limitations.append(
             "Extension fallback was used for metrics: "
@@ -125,24 +211,25 @@ def build_analysis_context(bundle: StockAnalysisDataBundle) -> AnalysisContext:
                 for metric in bundle.mapping_quality.fallback_metrics
             )
         )
+
     if bundle.metrics.roic is None:
         limitations.append(
             "ROIC is unavailable because average invested capital is not "
             "derived automatically yet."
         )
 
-    limitations.append(
-        "This deterministic bundle contains filing and market data only; "
-        "it does not contain peer, news, management-guidance, or catalyst evidence."
-    )
+    source_types = {
+        item.record.source_type
+        for item in evidence_items
+    }
 
-    return AnalysisContext(
-        symbol=bundle.symbol,
-        requested_as_of=bundle.requested_as_of,
-        evidence=evidence,
-        authoritative_facts=authoritative_facts,
-        deterministic_metrics=deterministic_metrics,
-        trends=trends,
-        derivations=derivations,
-        limitations=limitations,
-    )
+    if not peer_bundles:
+        limitations.append("Deterministic peer comparison data is unavailable.")
+    if "news" not in source_types:
+        limitations.append("News evidence is unavailable.")
+    if "company_ir" not in source_types:
+        limitations.append("Company IR / management-guidance evidence is unavailable.")
+    if not {"timely_disclosure", "company_ir"} & source_types:
+        limitations.append("Timely-disclosure / catalyst evidence is unavailable.")
+
+    return limitations

@@ -61,10 +61,12 @@ If no historical as-of is requested, use the current time available to the host 
 7. Analyze balance-sheet quality and cash flow.
 8. Evaluate valuation using explicitly dated inputs.
 9. Compare peers on a consistent basis when requested.
-10. Identify growth drivers, catalysts, and material risks.
-11. Build scenarios with explicit assumptions rather than hidden forecasts.
-12. Classify material claims as fact, calculation, interpretation, or assumption when structured output is available.
-13. Produce the report and run an unsupported-claim / consistency check.
+10. When peer comparison is requested, use peer bundles aligned to the same as-of timestamp and prefer deterministic peer metric IDs over mental recalculation.
+11. For news, timely disclosures, or company IR, preserve source_id, published_at, URL, and enough excerpt/context to support material claims.
+12. Identify growth drivers, catalysts, and material risks only from supplied evidence.
+13. Build scenarios with explicit assumptions rather than hidden forecasts.
+14. Classify material claims as fact, calculation, interpretation, or assumption when structured output is available.
+15. Produce the report and run an unsupported-claim / consistency check.
 
 ## Output
 

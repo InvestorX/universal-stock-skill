@@ -14,6 +14,7 @@
 - [Deterministic financial derivations](financial-derivations.md)
 - [End-to-end stock analysis data bundle](e2e-stock-analysis.md)
 - [Analysis report layer](analysis-report-layer.md)
+- [Qualitative evidence and peer comparison](evidence-peer-layer.md)
 - [Benchmark specification](benchmark-spec.md)
 - [RRSI design](rrsi-design.md)
 
