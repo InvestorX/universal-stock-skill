@@ -36,6 +36,7 @@ from .filings import (
     ResolvedAnnualFiling,
     normalize_sec_code,
 )
+from .market import MarketDataSource, MarketSnapshot
 
 __all__ = [
     "ANNUAL_REPORT_CORRECTION_DOC_TYPE",
@@ -71,6 +72,8 @@ __all__ = [
     "FilingResolutionError",
     "FinancialDataSource",
     "MappingMatchType",
+    "MarketDataSource",
+    "MarketSnapshot",
     "PriceDataSource",
     "ResolvedAnnualFiling",
     "evaluate_mapping_quality",
