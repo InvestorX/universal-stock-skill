@@ -74,9 +74,8 @@ class ToyotaPeerFakeProvider:
                 ),
                 "valuation": (
                     "Reference-price valuation metrics are regression inputs. "
-                    "Honda and Nissan have negative PER values because the common "
-                    "annual period is loss-making, so conventional positive-PER "
-                    "comparison is not applicable."
+                    "Honda and Nissan have negative EPS in the common annual "
+                    "period, so conventional PER is unavailable."
                 ),
                 "peer_comparison": (
                     "Toyota: revenue YoY ~5.5%, operating margin ~7.43%, ROE "
@@ -87,8 +86,8 @@ class ToyotaPeerFakeProvider:
                 "catalysts": [],
                 "risks": [
                     (
-                        "Peer valuation using negative PER for Honda and Nissan "
-                        "must not be interpreted as a conventional low-PER signal."
+                        "Honda and Nissan have negative EPS, so conventional "
+                        "PER comparison is unavailable for this annual period."
                     )
                 ],
                 "scenarios": [],
@@ -150,8 +149,8 @@ class ToyotaPeerFakeProvider:
                     {
                         "claim_id": "peer-negative-per",
                         "text": (
-                            "Honda and Nissan reference PER values are negative "
-                            "because EPS is negative in the common annual period."
+                            "Honda and Nissan PER values are unavailable because "
+                            "EPS is negative in the common annual period."
                         ),
                         "kind": "calculation",
                         "evidence_ids": [
@@ -241,6 +240,6 @@ async def test_toyota_peer_grounded_report_uses_real_peer_evidence() -> None:
         for item in report.limitations
     )
     assert any(
-        "negative PER values" in item
+        "PER is therefore unavailable" in item
         for item in report.limitations
     )
