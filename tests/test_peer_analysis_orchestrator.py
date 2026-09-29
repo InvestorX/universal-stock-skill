@@ -5,8 +5,8 @@ from datetime import UTC, datetime
 import pytest
 
 from universal_stock_skill.analysis import (
-    PeerAnalysisOrchestrator,
     PeerComparisonError,
+    PeerAnalysisOrchestrator,
 )
 
 
