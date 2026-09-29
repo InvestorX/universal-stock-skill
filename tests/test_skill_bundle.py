@@ -4,7 +4,6 @@ import yaml
 
 from scripts.validate_skill import split_frontmatter, validate_skill
 
-
 ROOT = Path(__file__).resolve().parents[1]
 SKILL_DIR = ROOT / ".agents" / "skills" / "stock-analysis"
 
@@ -20,10 +19,8 @@ def test_skill_defaults_to_host_agent_without_endpoint() -> None:
 
     assert metadata["name"] == "stock-analysis"
     assert "host agent" in body.lower()
-    assert (
-        "do not ask the user to configure another llm endpoint"
-        in body.lower()
-    )
+    expected = "do not ask the user to configure another llm endpoint"
+    assert expected in body.lower()
 
     internal = yaml.safe_load(
         (SKILL_DIR / "skill.yaml").read_text(encoding="utf-8")
