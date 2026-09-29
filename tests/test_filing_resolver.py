@@ -10,7 +10,6 @@ from universal_stock_skill.data.filings import (
     normalize_sec_code,
 )
 
-
 JST = ZoneInfo("Asia/Tokyo")
 
 
