@@ -21,6 +21,10 @@ def ground_report(
             "grounded analysis report must contain at least one structured claim"
         )
 
+    claim_ids = [claim.claim_id for claim in report.claims]
+    if len(claim_ids) != len(set(claim_ids)):
+        raise ReportGroundingError("claim_id values must be unique")
+
     known_evidence = {
         item.source_id: item
         for item in context.evidence
