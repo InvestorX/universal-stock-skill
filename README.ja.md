@@ -4,7 +4,7 @@
 
 **LLMに依存しない銘柄分析Skill Runtime** と、RRSI（Recursive Self-Improvement）の考え方を取り入れた自動改善基盤です。
 
-> 現在の状態: 初期アーキテクチャ / Runtime実装中
+> 現在の状態: Runtime / Point-in-Time / EDINET接続基盤を実装中
 
 ## このプロジェクトの目的
 
@@ -80,12 +80,17 @@ docs/
   skill-spec.md
   benchmark-spec.md
   rrsi-design.md
+  provider-adapters.md
+  data-sources.md
 
 src/universal_stock_skill/
   llm/                   # LLM共通インターフェース / Provider Adapter
   runtime/               # Skill実行Runtime / Tool Registry
   finance/               # 決定論的な財務計算
   benchmark/             # Point-in-Time Benchmark
+  evidence/              # 出典情報 / 未来情報漏洩防止
+  data/                  # EDINET等のデータソースAdapter
+  analysis/              # 指標計算 -> LLM分析Workflow
   skills/stock_analysis/ # 銘柄分析Skill
   evolution/             # RRSI評価・Fitness
 
@@ -116,6 +121,40 @@ tests/
 - 財務・開示・ニュース間の関係整理
 - 最終レポート作成
 
+## Point-in-Time
+
+過去時点の銘柄分析やRRSIのBenchmarkでは、`as_of` より後に公開された資料を使用してはいけません。
+
+```text
+資料の published_at <= analysis.as_of
+                    |
+                 利用可能
+
+資料の published_at > analysis.as_of
+                    |
+              Runtimeで拒否
+```
+
+この判定はLLMへの指示ではなく、Pythonの `PointInTimeGuard` で強制します。
+
+## EDINET
+
+EDINET API v2向けのクライアント基盤を実装しています。
+
+現在できること:
+
+- 日付を指定した提出書類一覧の取得
+- `docID` を指定した書類データの取得
+- EDINET提出日時をEvidenceへ変換
+- API通信をMock化した自動テスト
+
+まだ未実装:
+
+- XBRL / CSVから財務数値を正規化して抽出
+- 証券コードから必要書類を自動選択
+- 訂正報告書・複数提出書類の優先順位処理
+- FinancialSnapshotへの自動変換
+
 ## 開発環境
 
 Python 3.11以上。
@@ -128,6 +167,12 @@ python -m venv .venv
 
 pip install -e ".[dev]"
 pytest
+```
+
+合成データだけで財務計算を試す場合:
+
+```bash
+python scripts/run_analysis.py 7203 --demo
 ```
 
 ## 現在のロードマップ
@@ -146,11 +191,14 @@ pytest
 - [x] 財務計算モジュール
 - [x] Benchmark Caseモデル
 - [x] Structured Output validation
-- [ ] Stock Analysis Workflow
-- [ ] 最初のEnd-to-End分析
+- [x] Stock Analysis Workflow基盤
+- [x] Evidence / Point-in-Time Guard
+- [ ] Provider-neutral Tool Calling fallback
+- [ ] 実データを使ったEnd-to-End分析
 
 ### Phase 3 — Market Data
-- [ ] EDINET
+- [x] EDINET APIクライアント基盤
+- [ ] EDINET XBRL / CSV財務データ抽出
 - [ ] TDnet
 - [ ] 株価データ
 - [ ] IR資料
