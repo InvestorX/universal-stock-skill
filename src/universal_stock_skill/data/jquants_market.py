@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-import os
 from datetime import date, datetime, time, timedelta
+from os import environ
 from typing import Any, Self
 from zoneinfo import ZoneInfo
 
@@ -23,7 +23,7 @@ class JQuantsConfig(BaseModel):
 
     @classmethod
     def from_env(cls) -> Self:
-        api_key = os.environ.get("JQUANTS_API_KEY")
+        api_key = environ.get("JQUANTS_API_KEY")
         if not api_key:
             raise ValueError("JQUANTS_API_KEY is required")
         return cls(api_key=api_key)
@@ -228,7 +228,7 @@ def _codes_match(left: str, right: str) -> bool:
 
 
 def _parse_date(row: dict[str, Any]) -> date:
-    return datetime.strptime(str(row["Date"]), "%Y-%m-%d").date()
+    return date.fromisoformat(str(row["Date"]))
 
 
 def _read_number(row: dict[str, Any], *keys: str) -> float | None:
