@@ -13,6 +13,7 @@
 - [J-Quants market-data adapter](jquants-market.md)
 - [Deterministic financial derivations](financial-derivations.md)
 - [End-to-end stock analysis data bundle](e2e-stock-analysis.md)
+- [Analysis report layer](analysis-report-layer.md)
 - [Benchmark specification](benchmark-spec.md)
 - [RRSI design](rrsi-design.md)
 
