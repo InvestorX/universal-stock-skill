@@ -12,7 +12,6 @@ from universal_stock_skill.data import (
     EDINETCsvArchive,
 )
 
-
 TREND_METRICS = [
     CanonicalMetric.REVENUE,
     CanonicalMetric.OPERATING_INCOME,
