@@ -34,6 +34,10 @@ class CanonicalMetric(StrEnum):
     CF_INVESTING = "cf_investing"
     CF_FINANCING = "cf_financing"
     CASH = "cash"
+    INCOME_TAXES = "income_taxes"
+    CAPEX_TOTAL = "capex_total"
+    CAPEX_PPE = "capex_ppe"
+    CAPEX_INTANGIBLE = "capex_intangible"
 
 
 class ConsolidationPreference(StrEnum):
