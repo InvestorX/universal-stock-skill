@@ -74,10 +74,24 @@ Fallbackは意図的に狭くしています。
 
 - 標準Taxonomyの完全一致で取れなかった場合だけ実行
 - 有価証券報告書の企業拡張namespaceだけを対象
-- 現在はrevenueとoperating_incomeのみ
+- 現在はrevenue / operating_income / net_incomeを対象
 - SummaryOfBusinessResults / KeyFinancialData系のlocal nameを要求
-- Intersegment / Segment / Cost / Expense / PerShare / Ratio等を除外
+- 指標ごとにIntersegment / Cost / Gain / Loss / Proceeds / Ordinary / BeforeTax / Segment / PerShare / Ratio等を除外
 - 結果にmatch_type=extension_fallbackを保持
 - 元element IDを必ず保持
 
 次は実在企業の有報でFallback ruleを検証し、CanonicalFinancialSetからFinancialSnapshotへの変換へ接続します。
+
+
+## 会計基準の自動判定
+
+企業独自拡張element名には、必ずしもIFRS等の文字列が含まれません。
+
+Extension Fallback時は有報内の当期Fact全体から会計基準を判定します。
+
+1. 当期element IDにUSGAAP / us-gaapがあればUS-GAAP
+2. 当期element IDにIFRS / ifrs-fullがあればIFRS
+3. 当期Factが存在し上記に該当しなければJ-GAAP
+4. 当期情報自体がなければunknown
+
+標準Taxonomyの完全一致Mappingでは、Rule側で明示した会計基準をそのまま保持します。
