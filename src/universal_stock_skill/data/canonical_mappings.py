@@ -30,6 +30,13 @@ STANDARD_EDINET_MAPPINGS: dict[CanonicalMetric, tuple[ElementAlias, ...]] = {
     CanonicalMetric.REVENUE: (
         _a("jpcrp_cor:NetSalesSummaryOfBusinessResults", AccountingStandard.JGAAP, priority=160, period="期間"),
         _a("jpcrp_cor:RevenueKeyFinancialData", AccountingStandard.JGAAP, priority=150, period="期間"),
+        _a("jppfs_cor:NetSales", AccountingStandard.JGAAP, priority=125, period="期間"),
+        _a(
+            "jppfs_cor:NetSalesOfCompletedConstructionContractsCNS",
+            AccountingStandard.JGAAP,
+            priority=125,
+            period="期間",
+        ),
         _a("jpcrp_cor:OperatingRevenue1SummaryOfBusinessResults", AccountingStandard.JGAAP, priority=140, period="期間"),
         _a("jpcrp_cor:OperatingRevenue2SummaryOfBusinessResults", AccountingStandard.JGAAP, priority=140, period="期間"),
         _a("jpcrp_cor:GrossOperatingRevenueSummaryOfBusinessResults", AccountingStandard.JGAAP, priority=135, period="期間"),
@@ -45,6 +52,7 @@ STANDARD_EDINET_MAPPINGS: dict[CanonicalMetric, tuple[ElementAlias, ...]] = {
         ),
         _a("jpcrp_cor:RevenueIFRSSummaryOfBusinessResults", AccountingStandard.IFRS, priority=160, period="期間"),
         _a("jpcrp_cor:RevenuesUSGAAPSummaryOfBusinessResults", AccountingStandard.USGAAP, priority=160, period="期間"),
+        _a("jpcrp_cor:RevenueUSGAAPSummaryOfBusinessResults", AccountingStandard.USGAAP, priority=155, period="期間"),
     ),
     CanonicalMetric.OPERATING_INCOME: (
         _a("jppfs_cor:OperatingIncome", AccountingStandard.JGAAP, priority=170, period="期間"),
@@ -149,6 +157,12 @@ EXTENSION_EDINET_MAPPINGS: dict[CanonicalMetric, tuple[ExtensionRule, ...]] = {
                 "Cost",
                 "Expense",
                 "Expenses",
+                "Gain",
+                "Loss",
+                "Allowance",
+                "Commission",
+                "Refund",
+                "Proceeds",
                 "PerShare",
                 "Ratio",
             ),
@@ -175,6 +189,31 @@ EXTENSION_EDINET_MAPPINGS: dict[CanonicalMetric, tuple[ExtensionRule, ...]] = {
             semantic_note=(
                 "Matched a company-specific extension taxonomy element with a "
                 "curated operating-income fallback rule."
+            ),
+        ),
+    ),
+    CanonicalMetric.NET_INCOME: (
+        ExtensionRule(
+            contains_any=("Profit",),
+            excluded_substrings=(
+                "Ordinary",
+                "Operating",
+                "BeforeTax",
+                "GrossProfit",
+                "Equity",
+                "Earnings",
+                "Business",
+                "Segment",
+                "Margin",
+                "Ratio",
+                "PerShare",
+            ),
+            required_suffixes=("SummaryOfBusinessResults",),
+            priority=55,
+            expected_period_type="期間",
+            semantic_note=(
+                "Matched a company-specific extension taxonomy element with a "
+                "curated net-income fallback rule."
             ),
         ),
     ),
