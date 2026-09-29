@@ -24,7 +24,6 @@ from universal_stock_skill.data.market import MarketSnapshot
 from universal_stock_skill.evidence.collection import EvidenceItem
 from universal_stock_skill.evidence.models import SourceRecord
 
-
 JST = ZoneInfo("Asia/Tokyo")
 
 HONDA_FY2026_RESULTS_URL = (
