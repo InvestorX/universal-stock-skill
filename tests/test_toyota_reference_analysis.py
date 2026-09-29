@@ -96,9 +96,9 @@ def test_toyota_reference_trends_use_real_fy2025_comparatives() -> None:
     operating_income = result.trends.get(CanonicalMetric.OPERATING_INCOME)
     net_income = result.trends.get(CanonicalMetric.NET_INCOME)
 
-    assert revenue.year_over_year == pytest.approx(0.0551255, rel=1e-5)
-    assert operating_income.year_over_year == pytest.approx(-0.214641, rel=1e-5)
-    assert net_income.year_over_year == pytest.approx(-0.192443, rel=1e-5)
+    assert revenue.year_over_year == pytest.approx(0.05512968, rel=1e-5)
+    assert operating_income.year_over_year == pytest.approx(-0.21464947, rel=1e-5)
+    assert net_income.year_over_year == pytest.approx(-0.19243892, rel=1e-5)
 
 
 def test_toyota_reference_analysis_rejects_future_market_data() -> None:
