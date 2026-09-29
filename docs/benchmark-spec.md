@@ -1,18 +1,18 @@
 # Benchmark specification
 
+[日本語](benchmark-spec.ja.md)
+
 The benchmark measures analysis quality, not whether a stock later went up.
 
 ## Point-in-time case
 
-Every case must include an `as_of` timestamp. Data published after that timestamp is unavailable to the candidate.
+Every case must include a timezone-aware as_of timestamp. Data published after that timestamp is unavailable to the candidate.
 
-Example:
-
-```yaml
+~~~yaml
 symbol: "7203"
 as_of: "2025-02-10T15:00:00+09:00"
 task: "Analyze earnings quality and valuation."
-```
+~~~
 
 ## Initial score dimensions
 
@@ -31,13 +31,11 @@ task: "Analyze earnings quality and valuation."
 
 A candidate should be evaluated on more than one model family.
 
-A simple initial objective is:
-
-```text
+~~~text
 fitness = mean(score_by_model)
           - robustness_penalty * stdev(score_by_model)
           - cost_penalty
-```
+~~~
 
 A candidate with a slightly lower peak score but much better model portability may therefore win.
 
@@ -45,7 +43,7 @@ A candidate with a slightly lower peak score but much better model portability m
 
 A run is invalid if it:
 
-- uses information published after `as_of`
+- uses information published after as_of
 - fabricates evidence or source metadata
 - changes a deterministic expected value outside tolerance
 - includes benchmark-case-specific hard-coded behavior

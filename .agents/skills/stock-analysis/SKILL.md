@@ -1,0 +1,92 @@
+---
+name: stock-analysis
+description: Produces point-in-time, evidence-grounded stock and company analysis from filings, market data, financial metrics, and news. Use for listed-company analysis, earnings, valuation, profitability, balance sheet, cash flow, peer comparison, catalysts, risks, or scenarios. 日本株の銘柄分析、決算分析、バリュエーション、業績・財務・リスク分析にも使用する。
+---
+
+# Stock Analysis
+
+## Execution model
+
+Use the **current host agent** as the reasoning engine.
+
+Do not ask the user to configure another LLM endpoint, model, or LLM API key merely to execute this skill.
+
+- On Codex, use the current Codex session.
+- On Claude Code, use the current Claude Code session.
+- On Antigravity, use the current Antigravity agent.
+- On Hermes, use the current Hermes agent.
+- Prefer tools already available to the host agent for web/search, MCP, files, browser, and shell access.
+- Use deterministic Python helpers when a calculation, date rule, parsing rule, or validation can be machine-enforced.
+- Use the standalone Python LLM runtime only when the user explicitly requests controlled external model routing, cross-model benchmarking, batch execution, or RRSI evaluation.
+
+For execution-mode details, read references/execution-modes.md only when needed.
+
+## Objective
+
+Produce a source-grounded, point-in-time stock analysis without depending on one LLM vendor.
+
+## Inputs
+
+Resolve as much of the following as the task requires:
+
+- company or security identity
+- ticker / security code
+- analysis as-of timestamp
+- requested analysis scope
+- comparison peers when relevant
+
+If no historical as-of is requested, use the current time available to the host as the analysis cutoff.
+
+## Non-negotiable rules
+
+1. Never use information published after the analysis as-of timestamp.
+2. Never invent evidence, filings, prices, financial values, or source metadata.
+3. Do not make authoritative financial calculations in free-form reasoning when deterministic calculation is available.
+4. Separate reported facts, deterministic calculations, assumptions, and interpretation.
+5. Attach or identify evidence for material factual claims.
+6. State missing evidence and uncertainty explicitly.
+7. Keep comparison dates and accounting periods consistent.
+
+## Workflow
+
+1. Resolve company and security identity.
+2. Establish the as-of timestamp and timezone.
+3. Gather only evidence available by that cutoff.
+4. Prefer primary filings and company disclosures for reported financial facts.
+5. Use deterministic tools or Python for financial metrics and point-in-time checks.
+6. Analyze earnings and margin trends.
+7. Analyze balance-sheet quality and cash flow.
+8. Evaluate valuation using explicitly dated inputs.
+9. Compare peers on a consistent basis when requested.
+10. Identify growth drivers, catalysts, and material risks.
+11. Build scenarios with explicit assumptions rather than hidden forecasts.
+12. Produce the report and run an unsupported-claim / consistency check.
+
+## Output
+
+Use sections appropriate to the available evidence:
+
+- Snapshot
+- Earnings trend
+- Profitability
+- Financial position
+- Cash flow
+- Valuation
+- Peer comparison
+- Growth drivers / catalysts
+- Risks
+- Scenarios
+- Evidence and limitations
+
+For every important calculated metric, preserve the input values or enough provenance to reproduce it.
+
+## Verification
+
+Before finishing, verify:
+
+- no source violates the as-of cutoff
+- deterministic values were not silently recomputed differently
+- important factual claims have evidence
+- assumptions are labeled
+- missing data is not filled with guesses
+- valuation and peer inputs use compatible dates

@@ -1,15 +1,26 @@
-name: stock_analysis
-version: 0.1.0
+name: stock-analysis
+version: 0.2.0
 description: Point-in-time, evidence-grounded stock analysis
+execution:
+  default: host-agent
+  endpoint_required: false
+  standalone_runtime:
+    optional: true
+delegation:
+  reasoning: host-agent
+  tools: host-native-first
 capabilities:
-  - tool_calling
-  - structured_output
   - evidence_grounding
+  - point_in_time
+  - deterministic_calculations
+  - structured_reporting
 requirements:
   point_in_time: true
   deterministic_calculations: true
 workflow:
   - identity
+  - as_of
+  - evidence
   - financials
   - profitability
   - balance_sheet

@@ -1,0 +1,5 @@
+interface:
+  display_name: "Stock Analysis"
+  short_description: "Point-in-time, evidence-grounded stock analysis"
+policy:
+  allow_implicit_invocation: true

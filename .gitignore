@@ -12,3 +12,6 @@ htmlcov/
 .DS_Store
 .idea/
 .vscode/
+
+# Claude Code project install is a generated copy of the canonical .agents skill.
+.claude/skills/stock-analysis/
