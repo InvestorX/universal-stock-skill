@@ -12,6 +12,7 @@
 - [Market data model](market-data.md)
 - [J-Quants market-data adapter](jquants-market.md)
 - [Deterministic financial derivations](financial-derivations.md)
+- [End-to-end stock analysis data bundle](e2e-stock-analysis.md)
 - [Benchmark specification](benchmark-spec.md)
 - [RRSI design](rrsi-design.md)
 

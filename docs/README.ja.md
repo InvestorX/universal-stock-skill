@@ -12,5 +12,6 @@
 - [Market Dataモデル](market-data.ja.md)
 - [J-Quants Market Data Adapter](jquants-market.ja.md)
 - [決定論的な財務派生値](financial-derivations.ja.md)
+- [End-to-End銘柄分析Data Bundle](e2e-stock-analysis.ja.md)
 - [Benchmark仕様](benchmark-spec.ja.md)
 - [RRSI設計](rrsi-design.ja.md)

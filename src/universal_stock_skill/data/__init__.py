@@ -28,6 +28,7 @@ from .edinet_pipeline import (
     EDINETPipelineError,
 )
 from .facts import FactQuery, FactSet
+from .filing_discovery import AnnualFilingDiscovery
 from .filings import (
     ANNUAL_REPORT_CORRECTION_DOC_TYPE,
     ANNUAL_REPORT_DOC_TYPE,
@@ -47,6 +48,7 @@ __all__ = [
     "EXTENSION_EDINET_MAPPINGS",
     "STANDARD_EDINET_MAPPINGS",
     "AccountingStandard",
+    "AnnualFilingDiscovery",
     "AnnualFilingResolver",
     "CanonicalFinancialFact",
     "CanonicalFinancialMapper",

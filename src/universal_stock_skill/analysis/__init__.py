@@ -25,6 +25,12 @@ from .market_bridge import (
     build_snapshot_bridge_inputs,
 )
 from .models import FinancialSnapshot, StockMetrics
+from .orchestrator import (
+    DEFAULT_TREND_METRICS,
+    FilingSelectionSummary,
+    StockAnalysisDataBundle,
+    StockAnalysisOrchestrator,
+)
 from .trends import (
     CanonicalMetricTrend,
     CanonicalTrendSet,
@@ -35,10 +41,12 @@ from .trends import (
 from .workflow import calculate_stock_metrics
 
 __all__ = [
+    "DEFAULT_TREND_METRICS",
     "CanonicalMetricTrend",
     "CanonicalTrendSet",
     "DerivationMethod",
     "DerivedFinancialInputs",
+    "FilingSelectionSummary",
     "FinancialSnapshot",
     "FinancialSnapshotAssemblyError",
     "FinancialSnapshotAssemblyResult",
@@ -47,6 +55,8 @@ __all__ = [
     "SnapshotBridgeInputs",
     "SnapshotCanonicalReadiness",
     "SnapshotDerivedInputs",
+    "StockAnalysisDataBundle",
+    "StockAnalysisOrchestrator",
     "StockMetrics",
     "assemble_financial_snapshot",
     "average_two_periods",
