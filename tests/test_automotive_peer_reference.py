@@ -14,7 +14,6 @@ from universal_stock_skill.benchmark.toyota_analysis import (
     toyota_reference_market_snapshot,
 )
 
-
 JST = ZoneInfo("Asia/Tokyo")
 
 
