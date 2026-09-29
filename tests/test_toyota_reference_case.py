@@ -37,6 +37,10 @@ def test_toyota_fy2026_official_financial_values_are_frozen() -> None:
     assert current.per_share_yen["eps_basic"] == Decimal("295.25")
     assert current.per_share_yen["bps"] == Decimal("3062.82")
     assert current.ratios["roe"] == Decimal("0.101")
+    assert current.values_million_yen["capex_cash_outflow"] == Decimal(5_293_348)
+    assert current.share_counts["issued_end"] == 15_794_987_460
+    assert current.share_counts["treasury_end"] == 2_761_602_986
+    assert current.share_counts["outstanding_end"] == 13_033_384_474
 
     assert prior.values_million_yen["revenue"] == Decimal(48_036_704)
     assert prior.ratios["roe"] == Decimal("0.136")
