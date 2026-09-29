@@ -6,7 +6,10 @@ import json
 import os
 from datetime import datetime
 
-from universal_stock_skill.analysis import PeerAnalysisOrchestrator, StockAnalysisOrchestrator
+from universal_stock_skill.analysis import (
+    PeerAnalysisOrchestrator,
+    StockAnalysisOrchestrator,
+)
 from universal_stock_skill.data import (
     AnnualFilingDiscovery,
     EDINETCanonicalPipeline,
