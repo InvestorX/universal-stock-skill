@@ -414,3 +414,65 @@ def test_resolve_series_builds_current_and_prior_periods() -> None:
     assert current.get(CanonicalMetric.REVENUE).value == Decimal(1000)
     assert prior.get(CanonicalMetric.REVENUE).value == Decimal(900)
     assert series.get(2) is None
+
+
+def test_jgaap_tax_and_capex_elements_map_to_canonical_metrics() -> None:
+    facts = [
+        fact("jppfs_cor:IncomeTaxes", "30"),
+        fact("jppfs_cor:PurchaseOfPropertyPlantAndEquipmentInvCF", "-50"),
+        fact("jppfs_cor:PurchaseOfIntangibleAssetsInvCF", "-10"),
+    ]
+
+    result = DEFAULT_CANONICAL_MAPPER.resolve(
+        facts,
+        metrics=[
+            CanonicalMetric.INCOME_TAXES,
+            CanonicalMetric.CAPEX_PPE,
+            CanonicalMetric.CAPEX_INTANGIBLE,
+        ],
+    )
+
+    assert result.missing == []
+    assert result.get(CanonicalMetric.INCOME_TAXES).value == Decimal(30)
+    assert result.get(CanonicalMetric.CAPEX_PPE).value == Decimal(-50)
+    assert result.get(CanonicalMetric.CAPEX_INTANGIBLE).value == Decimal(-10)
+
+
+def test_combined_capex_element_maps_without_double_counting_components() -> None:
+    resolved = DEFAULT_CANONICAL_MAPPER.resolve_metric(
+        [
+            fact(
+                "jppfs_cor:PurchaseOfPropertyPlantAndEquipmentAndIntangibleAssetsInvCF",
+                "-80",
+            )
+        ],
+        CanonicalMetric.CAPEX_TOTAL,
+    )
+
+    assert resolved is not None
+    assert resolved.value == Decimal(-80)
+
+
+def test_ifrs_full_tax_and_ppe_elements_are_supported() -> None:
+    facts = [
+        fact("ifrs-full:IncomeTaxExpenseContinuingOperations", "40"),
+        fact(
+            "ifrs-full:PurchaseOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities",
+            "-120",
+        ),
+    ]
+
+    result = DEFAULT_CANONICAL_MAPPER.resolve(
+        facts,
+        metrics=[
+            CanonicalMetric.INCOME_TAXES,
+            CanonicalMetric.CAPEX_PPE,
+        ],
+    )
+
+    assert result.missing == []
+    assert (
+        result.get(CanonicalMetric.INCOME_TAXES).accounting_standard
+        == AccountingStandard.IFRS
+    )
+    assert result.get(CanonicalMetric.CAPEX_PPE).value == Decimal(-120)
