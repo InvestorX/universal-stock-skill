@@ -4,17 +4,18 @@ from decimal import Decimal
 import pytest
 
 from universal_stock_skill.analysis.assembly import FinancialSnapshotAssemblyResult
+from universal_stock_skill.analysis.bridge import SnapshotCanonicalReadiness
 from universal_stock_skill.analysis.context import AnalysisContext, build_analysis_context
 from universal_stock_skill.analysis.derivations import (
     DerivationMethod,
     DerivedFinancialInputs,
 )
 from universal_stock_skill.analysis.models import FinancialSnapshot, StockMetrics
-from universal_stock_skill.analysis.report import EvidenceRef
 from universal_stock_skill.analysis.orchestrator import (
     FilingSelectionSummary,
     StockAnalysisDataBundle,
 )
+from universal_stock_skill.analysis.report import EvidenceRef
 from universal_stock_skill.analysis.trends import (
     CanonicalMetricTrend,
     CanonicalTrendSet,
@@ -22,7 +23,6 @@ from universal_stock_skill.analysis.trends import (
 from universal_stock_skill.data.canonical import CanonicalMetric
 from universal_stock_skill.data.canonical_quality import CanonicalMappingQuality
 from universal_stock_skill.data.market import MarketSnapshot
-from universal_stock_skill.analysis.bridge import SnapshotCanonicalReadiness
 
 
 def bundle() -> StockAnalysisDataBundle:
@@ -89,8 +89,8 @@ def bundle() -> StockAnalysisDataBundle:
             trends=[
                 CanonicalMetricTrend(
                     metric=CanonicalMetric.REVENUE,
-                    current_value=Decimal("48000"),
-                    prior_value=Decimal("44000"),
+                    current_value=Decimal(48000),
+                    prior_value=Decimal(44000),
                     year_over_year=0.0909,
                     cagr_value=0.07,
                     cagr_years=4,
@@ -101,9 +101,9 @@ def bundle() -> StockAnalysisDataBundle:
         assembly=FinancialSnapshotAssemblyResult(
             snapshot=snapshot,
             derived=DerivedFinancialInputs(
-                average_equity=Decimal("30000"),
+                average_equity=Decimal(30000),
                 average_equity_method=DerivationMethod.OFFICIAL_ROE_BACKSOLVE,
-                capital_expenditure=Decimal("4000"),
+                capital_expenditure=Decimal(4000),
                 capital_expenditure_method=DerivationMethod.CAPEX_COMPONENT_SUM,
             ),
         ),
