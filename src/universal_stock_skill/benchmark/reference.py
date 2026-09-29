@@ -14,6 +14,7 @@ class FinancialReferencePeriod(BaseModel):
     values_million_yen: dict[str, Decimal]
     per_share_yen: dict[str, Decimal] = Field(default_factory=dict)
     ratios: dict[str, Decimal] = Field(default_factory=dict)
+    share_counts: dict[str, int] = Field(default_factory=dict)
 
 
 class StockReferenceCase(BaseModel):

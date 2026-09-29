@@ -201,3 +201,36 @@ def test_derive_financial_inputs_leaves_invested_capital_unavailable() -> None:
         result.average_invested_capital_method
         == DerivationMethod.UNAVAILABLE
     )
+
+
+def test_ifrs_two_period_equity_precedes_rounded_official_roe_backsolve() -> None:
+    current = financials(
+        fact(
+            CanonicalMetric.NET_INCOME,
+            "3848098",
+            standard=AccountingStandard.IFRS,
+        ),
+        fact(
+            CanonicalMetric.ROE_OFFICIAL,
+            "0.101",
+            unit="pure",
+            standard=AccountingStandard.IFRS,
+        ),
+        fact(
+            CanonicalMetric.NET_ASSETS,
+            "39918854",
+            standard=AccountingStandard.IFRS,
+        ),
+    )
+    prior = financials(
+        fact(
+            CanonicalMetric.NET_ASSETS,
+            "35924826",
+            standard=AccountingStandard.IFRS,
+        )
+    )
+
+    value, method = derive_average_equity(current, series(current, prior))
+
+    assert value == Decimal(37921840)
+    assert method == DerivationMethod.TWO_PERIOD_OWNERS_EQUITY

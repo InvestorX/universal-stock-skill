@@ -96,3 +96,34 @@ python scripts/inspect_toyota_reference.py
 ~~~
 
 でReference Case全体をJSON表示できます。
+
+
+## Reference Analysis Adapter
+
+Toyota CaseをCanonicalFinancialSet / CanonicalFinancialSeriesへ変換し、通常のEDINET分析と同じDerivation・Metric計算へそのまま通せるようにしました。
+
+Toyota資料の百万円単位は、Assembly前に円へ変換します。
+
+FY2026のFCF Regressionでは、連結Cash Flow Statementの取得支出からCash CapExを次のように定義します。
+
+~~~text
+他者向けリース設備を除く固定資産取得   2,148,192 百万円
+他者向けリース設備取得                 2,766,352 百万円
+無形資産取得                             378,804 百万円
+------------------------------------------------
+Cash CapEx                              5,293,348 百万円
+~~~
+
+これはToyotaのSegment Noteにある「Capital expenditures」とは意図的に別定義です。FinancialSnapshotのFCFではCash Outflowを使うためです。
+
+また、この実在企業Caseによって平均自己資本Derivationも改善しました。IFRS / US-GAAPでは、丸め済み公式ROEからの逆算より2時点owners' equityを優先します。
+
+Reference Market Priceを明示して実行できます。
+
+~~~bash
+python scripts/inspect_toyota_reference_analysis.py \
+  --price 3000 \
+  --as-of 2026-09-29T15:30:00+09:00
+~~~
+
+ここでの3000円はRegression入力であり、Toyotaの実株価を固定したものではありません。本番分析では指定時刻のJ-Quants MarketSnapshotを渡します。

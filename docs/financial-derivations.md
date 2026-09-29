@@ -18,13 +18,19 @@ flowchart LR
 
 ## Average equity
 
-The preferred method is to reconstruct the denominator used by the filing's official ROE:
+When IFRS or US-GAAP canonical equity values are available for both the current and prior periods, the preferred method is a two-period average:
+
+~~~text
+average_equity = (current_owners_equity + prior_owners_equity) / 2
+~~~
+
+This avoids error introduced by back-solving from an officially published ROE that may already be rounded.
+
+If safe two-period owners' equity is unavailable, the runtime may reconstruct the denominator from official ROE:
 
 ~~~text
 average_equity = net_income / official_roe
 ~~~
-
-This avoids silently treating JP GAAP net assets as owners' equity.
 
 ROE normalization is conservative:
 
@@ -32,9 +38,9 @@ ROE normalization is conservative:
 - values above 1 require an explicit percent-style unit
 - ambiguous large unitless ratios are rejected
 
-If official ROE is unavailable, a two-period average of the canonical net-assets metric is allowed only when the mapped accounting standard is IFRS or US-GAAP, because the current canonical aliases in those standards prioritize equity attributable to owners of parent.
+JP GAAP net assets are not automatically substituted for owners' equity. For JP GAAP, official-ROE backsolve therefore remains the safe fallback until an explicit owners-equity mapping is available.
 
-JP GAAP net assets are not automatically substituted for owners' equity.
+The Toyota FY2026 real-company regression case is what exposed this ordering issue: its published ROE is 10.1%, while averaging FY2025/FY2026 Toyota shareholders' equity reproduces the rounded 10.1% without reverse-engineering from the rounded ratio.
 
 ## Capital expenditure
 

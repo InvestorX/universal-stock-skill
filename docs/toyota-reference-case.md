@@ -96,3 +96,34 @@ python scripts/inspect_toyota_reference.py
 ~~~
 
 This prints the complete frozen case as JSON.
+
+
+## Reference analysis adapter
+
+The Toyota case can now be converted into CanonicalFinancialSet / CanonicalFinancialSeries and passed through the same deterministic derivation and metric code used by normal EDINET analysis.
+
+The adapter converts Toyota's published million-JPY values into base JPY before assembly.
+
+For FY2026 FCF regression, cash CapEx is defined from the consolidated cash-flow statement as:
+
+~~~text
+fixed assets excluding equipment leased to others  2,148,192 million JPY
+equipment leased to others                         2,766,352 million JPY
+intangible assets                                    378,804 million JPY
+-------------------------------------------------------------
+cash CapEx                                         5,293,348 million JPY
+~~~
+
+This is intentionally different from Toyota's segment-note "Capital expenditures" measure because FinancialSnapshot free cash flow uses cash outflows.
+
+The real-company case also changed average-equity derivation behavior. For IFRS / US-GAAP, two-period owners' equity now takes precedence over back-solving from rounded official ROE.
+
+Example with an explicitly supplied reference market price:
+
+~~~bash
+python scripts/inspect_toyota_reference_analysis.py \
+  --price 3000 \
+  --as-of 2026-09-29T15:30:00+09:00
+~~~
+
+The price above is only a regression input, not a frozen claim about Toyota's real market price. Production analysis should pass the J-Quants MarketSnapshot for the requested timestamp.

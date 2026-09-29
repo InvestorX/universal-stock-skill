@@ -62,17 +62,6 @@ def derive_average_equity(
     current: CanonicalFinancialSet,
     series: CanonicalFinancialSeries,
 ) -> tuple[Decimal | None, DerivationMethod]:
-    net_income = current.get(CanonicalMetric.NET_INCOME)
-    roe = current.get(CanonicalMetric.ROE_OFFICIAL)
-
-    if net_income is not None and roe is not None:
-        ratio = normalize_ratio(roe)
-        if ratio is not None and ratio > 0:
-            return (
-                net_income.value / ratio,
-                DerivationMethod.OFFICIAL_ROE_BACKSOLVE,
-            )
-
     current_net_assets = _series_fact(series, CanonicalMetric.NET_ASSETS, 0)
     prior_net_assets = _series_fact(series, CanonicalMetric.NET_ASSETS, 1)
 
@@ -86,6 +75,17 @@ def derive_average_equity(
             (current_net_assets.value + prior_net_assets.value) / Decimal(2),
             DerivationMethod.TWO_PERIOD_OWNERS_EQUITY,
         )
+
+    net_income = current.get(CanonicalMetric.NET_INCOME)
+    roe = current.get(CanonicalMetric.ROE_OFFICIAL)
+
+    if net_income is not None and roe is not None:
+        ratio = normalize_ratio(roe)
+        if ratio is not None and ratio > 0:
+            return (
+                net_income.value / ratio,
+                DerivationMethod.OFFICIAL_ROE_BACKSOLVE,
+            )
 
     return None, DerivationMethod.UNAVAILABLE
 
