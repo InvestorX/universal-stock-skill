@@ -48,7 +48,7 @@ def test_honda_reference_metrics_match_official_results() -> None:
     assert row.revenue_yoy == pytest.approx(0.0049722974)
     assert row.operating_margin == pytest.approx(-0.019)
     assert row.roe == pytest.approx(-0.035)
-    assert row.per == pytest.approx(-14.14293796)
+    assert row.per is None
     assert row.pbr == pytest.approx(0.49408579)
     assert row.market_cap == pytest.approx(5_838_870_661_500)
     assert row.free_cash_flow_yield == pytest.approx(0.0407126675)
@@ -65,7 +65,7 @@ def test_nissan_reference_metrics_keep_noncomparable_fcf_unavailable() -> None:
     assert row.revenue_yoy == pytest.approx(-0.0494985678)
     assert row.operating_margin == pytest.approx(0.005)
     assert row.roe == pytest.approx(-0.109)
-    assert row.per == pytest.approx(-2.29387862)
+    assert row.per is None
     assert row.pbr == pytest.approx(0.25499796)
     assert row.market_cap == pytest.approx(1_223_733_882_000)
     assert row.free_cash_flow_yield is None
@@ -118,6 +118,6 @@ def test_toyota_peer_context_removes_missing_peer_limitation() -> None:
         not in context.limitations
     )
     assert any(
-        "negative PER values" in item
+        "PER is therefore unavailable" in item
         for item in context.limitations
     )
