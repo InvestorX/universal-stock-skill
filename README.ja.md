@@ -94,9 +94,12 @@ Production Skillを実行中に直接自己書換えさせず、候補を分離�
 - Decimalへの数値正規化
 - EDINETのハイフン値を明示的な0として処理
 - 要素ID / コンテキストID等による決定論的Fact検索
+- J-GAAP / IFRS / US-GAAPの標準TaxonomyからCanonical財務指標へのMapping
+- 当期・連結・contextを考慮した決定論的Candidate選択
+- 同順位Factの値衝突検出
 - Mock通信による自動テスト
 
-次の中心課題は、EDINET FactからCanonical財務指標へのMapping、証券コードから必要書類の解決、訂正報告書の優先順位処理、FinancialSnapshot自動変換、実データEnd-to-End分析です。
+次の中心課題は、企業独自拡張element IDの安全なFallback Mapping、証券コードから必要書類の解決、訂正報告書の優先順位処理、FinancialSnapshot自動変換、実データEnd-to-End分析です。
 
 ## ドキュメント
 
