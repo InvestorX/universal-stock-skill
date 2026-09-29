@@ -41,14 +41,15 @@ from .trends import (
 from .workflow import calculate_stock_metrics
 
 __all__ = [
+    "DEFAULT_TREND_METRICS",
     "CanonicalMetricTrend",
     "CanonicalTrendSet",
     "DerivationMethod",
     "DerivedFinancialInputs",
+    "FilingSelectionSummary",
     "FinancialSnapshot",
     "FinancialSnapshotAssemblyError",
     "FinancialSnapshotAssemblyResult",
-    "FilingSelectionSummary",
     "MissingCanonicalMetric",
     "MissingMarketCapitalization",
     "SnapshotBridgeInputs",
@@ -70,5 +71,4 @@ __all__ = [
     "derive_nopat",
     "evaluate_snapshot_readiness",
     "normalize_ratio",
-    "DEFAULT_TREND_METRICS",
 ]
