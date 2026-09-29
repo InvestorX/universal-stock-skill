@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import pytest
 
@@ -15,18 +15,18 @@ def source(published_at: datetime) -> SourceRecord:
         source_type="filing",
         title="Example filing",
         published_at=published_at,
-        retrieved_at=datetime.now(timezone.utc),
+        retrieved_at=datetime.now(UTC),
     )
 
 
 def test_guard_accepts_information_available_at_as_of() -> None:
-    as_of = datetime(2026, 1, 10, tzinfo=timezone.utc)
+    as_of = datetime(2026, 1, 10, tzinfo=UTC)
     record = source(as_of - timedelta(seconds=1))
     assert PointInTimeGuard(as_of).validate(record) == record
 
 
 def test_guard_rejects_future_information() -> None:
-    as_of = datetime(2026, 1, 10, tzinfo=timezone.utc)
+    as_of = datetime(2026, 1, 10, tzinfo=UTC)
     record = source(as_of + timedelta(seconds=1))
 
     with pytest.raises(FutureInformationError):
