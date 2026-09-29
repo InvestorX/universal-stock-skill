@@ -19,7 +19,6 @@ from universal_stock_skill.data import (
     EDINETDocument,
 )
 
-
 HEADERS = [
     "要素ID",
     "項目名",
