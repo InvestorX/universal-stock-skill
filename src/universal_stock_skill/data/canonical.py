@@ -197,6 +197,7 @@ class CanonicalFinancialMapper:
     ) -> list[Candidate]:
         rules = self._extension_rules.get(metric, ())
         candidates: list[Candidate] = []
+        inferred_standard = infer_accounting_standard(facts)
 
         for fact in facts:
             if not _eligible(
@@ -211,7 +212,12 @@ class CanonicalFinancialMapper:
                     continue
                 alias = ElementAlias(
                     element_id=fact.element_id,
-                    accounting_standard=_infer_accounting_standard(fact.element_id),
+                    accounting_standard=(
+                        _infer_accounting_standard(fact.element_id)
+                        if _infer_accounting_standard(fact.element_id)
+                        != AccountingStandard.UNKNOWN
+                        else inferred_standard
+                    ),
                     priority=rule.priority,
                     expected_period_type=rule.expected_period_type,
                     semantic_note=rule.semantic_note,
@@ -327,11 +333,26 @@ def _is_company_extension(element_id: str) -> bool:
     return "-asr_" in prefix
 
 
+def infer_accounting_standard(
+    facts: Iterable[EDINETCsvFact],
+) -> AccountingStandard:
+    current = [fact for fact in facts if _is_current_year(fact)]
+    element_ids = [fact.element_id for fact in current]
+
+    if any("USGAAP" in item or item.startswith("us-gaap:") for item in element_ids):
+        return AccountingStandard.USGAAP
+    if any("IFRS" in item or item.startswith("ifrs-full:") for item in element_ids):
+        return AccountingStandard.IFRS
+    if current:
+        return AccountingStandard.JGAAP
+    return AccountingStandard.UNKNOWN
+
+
 def _infer_accounting_standard(element_id: str) -> AccountingStandard:
     local_name = _local_name(element_id)
-    if "IFRS" in local_name:
+    if "IFRS" in local_name or element_id.startswith("ifrs-full:"):
         return AccountingStandard.IFRS
-    if "USGAAP" in local_name:
+    if "USGAAP" in local_name or element_id.startswith("us-gaap:"):
         return AccountingStandard.USGAAP
     return AccountingStandard.UNKNOWN
 
