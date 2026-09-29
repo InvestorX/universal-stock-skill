@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 
@@ -33,7 +33,7 @@ class FakeProvider:
 async def test_stock_analysis_workflow_calculates_before_llm() -> None:
     snapshot = FinancialSnapshot(
         symbol="DEMO",
-        as_of=datetime(2026, 1, 1, tzinfo=timezone.utc),
+        as_of=datetime(2026, 1, 1, tzinfo=UTC),
         price=1000.0,
         revenue=10000.0,
         operating_income=1000.0,
