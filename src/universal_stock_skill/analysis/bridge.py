@@ -11,7 +11,6 @@ from universal_stock_skill.data.canonical import (
     MappingMatchType,
 )
 
-
 SNAPSHOT_CANONICAL_REQUIREMENTS = (
     CanonicalMetric.REVENUE,
     CanonicalMetric.OPERATING_INCOME,
