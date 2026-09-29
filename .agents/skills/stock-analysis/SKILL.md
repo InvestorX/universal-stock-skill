@@ -20,6 +20,7 @@ Do not ask the user to configure another LLM endpoint, model, or LLM API key mer
 - Use the standalone Python LLM runtime only when the user explicitly requests controlled external model routing, cross-model benchmarking, batch execution, or RRSI evaluation.
 
 For execution-mode details, read references/execution-modes.md only when needed.
+For grounded-report ID and claim rules, read references/grounding.md when producing the final report from a deterministic bundle.
 
 ## Objective
 
@@ -44,8 +45,10 @@ If no historical as-of is requested, use the current time available to the host 
 3. Do not make authoritative financial calculations in free-form reasoning when deterministic calculation is available.
 4. Separate reported facts, deterministic calculations, assumptions, and interpretation.
 5. Attach or identify evidence for material factual claims.
-6. State missing evidence and uncertainty explicitly.
-7. Keep comparison dates and accounting periods consistent.
+6. Treat deterministic metric / trend / derivation IDs supplied by the runtime as authoritative references; do not silently recompute them.
+7. Never invent evidence IDs, source metadata, peer data, news, guidance, or catalysts that were not supplied.
+8. State missing evidence and uncertainty explicitly.
+9. Keep comparison dates and accounting periods consistent.
 
 ## Workflow
 
@@ -60,7 +63,8 @@ If no historical as-of is requested, use the current time available to the host 
 9. Compare peers on a consistent basis when requested.
 10. Identify growth drivers, catalysts, and material risks.
 11. Build scenarios with explicit assumptions rather than hidden forecasts.
-12. Produce the report and run an unsupported-claim / consistency check.
+12. Classify material claims as fact, calculation, interpretation, or assumption when structured output is available.
+13. Produce the report and run an unsupported-claim / consistency check.
 
 ## Output
 
@@ -79,6 +83,13 @@ Use sections appropriate to the available evidence:
 - Evidence and limitations
 
 For every important calculated metric, preserve the input values or enough provenance to reproduce it.
+
+When a deterministic AnalysisContext is available:
+
+- cite only evidence / metric / trend / derivation IDs that exist in that context
+- do not replace deterministic values with mental arithmetic
+- leave peer comparison, news-driven catalysts, or guidance conclusions empty when their evidence was not supplied
+- keep scenario statements explicitly labelled as assumptions
 
 ## Verification
 
