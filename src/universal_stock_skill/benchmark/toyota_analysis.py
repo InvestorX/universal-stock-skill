@@ -9,7 +9,9 @@ from universal_stock_skill.analysis.assembly import (
     FinancialSnapshotAssemblyResult,
     assemble_financial_snapshot,
 )
+from universal_stock_skill.analysis.context import AnalysisContext
 from universal_stock_skill.analysis.models import StockMetrics
+from universal_stock_skill.analysis.report import EvidenceRef
 from universal_stock_skill.analysis.trends import (
     CanonicalTrendSet,
     calculate_canonical_trends,
@@ -272,6 +274,84 @@ def analyze_toyota_reference(
         trends=trends,
         metrics=metrics,
         evidence=case.qualitative_evidence,
+    )
+
+
+def toyota_reference_analysis_context(
+    market: MarketSnapshot,
+) -> AnalysisContext:
+    result = analyze_toyota_reference(market)
+    case = toyota_7203_reference_case()
+
+    evidence = [
+        EvidenceRef(
+            source_id=item.record.source_id,
+            title=item.record.title,
+            url=item.record.url,
+            published_at=item.record.published_at,
+        )
+        for item in result.evidence
+    ]
+    market_source_id = (
+        f"market:{market.source}:{market.observed_at.isoformat()}"
+    )
+    evidence.append(
+        EvidenceRef(
+            source_id=market_source_id,
+            title=(
+                f"Toyota 7203 reference market snapshot "
+                f"({market.source}, {market.observed_at.isoformat()})"
+            ),
+            published_at=market.observed_at,
+        )
+    )
+
+    deterministic_metrics = {
+        f"metric:{key}": value
+        for key, value in result.metrics.model_dump(mode="json").items()
+    }
+    trends = {
+        f"trend:{trend.metric.value}": trend.model_dump(mode="json")
+        for trend in result.trends.trends
+    }
+    derivations = result.assembly.derived.model_dump(mode="json")
+
+    limitations = [
+        (
+            "Reference market price is an injected regression input, not a "
+            "frozen claim about Toyota's historical market price."
+        ),
+        "Deterministic peer comparison data is unavailable.",
+        "News evidence is unavailable.",
+    ]
+    if result.metrics.roic is None:
+        limitations.append(
+            "ROIC is unavailable because average invested capital is not "
+            "derived automatically yet."
+        )
+
+    return AnalysisContext(
+        symbol=case.symbol,
+        requested_as_of=case.as_of,
+        evidence=evidence,
+        authoritative_facts={
+            "reference_case": {
+                "case_id": case.case_id,
+                "company_name": case.company_name,
+                "accounting_standard": case.accounting_standard,
+                "as_of": case.as_of.isoformat(),
+            },
+            "market": market.model_dump(mode="json"),
+            "financial_snapshot": result.assembly.snapshot.model_dump(mode="json"),
+            "qualitative_evidence": [
+                item.model_dump(mode="json")
+                for item in result.evidence
+            ],
+        },
+        deterministic_metrics=deterministic_metrics,
+        trends=trends,
+        derivations=derivations,
+        limitations=limitations,
     )
 
 
