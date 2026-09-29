@@ -99,7 +99,7 @@ Production Skillを実行中に直接自己書換えさせず、候補を分離�
 - 同順位Factの値衝突検出
 - Mock通信による自動テスト
 
-企業独自拡張element IDの限定Fallback、有報Resolver、CanonicalFinancialSetからFinancialSnapshotへのBridgeまで実装しました。次の中心課題は、実在有報でのMapping検証、平均自己資本・CapEx等の自動導出、株価Data Sourceとの結合、実データEnd-to-End分析です。
+企業独自拡張element IDの限定Fallback、有報Resolver、最大5年のCanonical時系列化・前年比/CAGR、CanonicalFinancialSetからFinancialSnapshotへのBridgeまで実装しました。次の中心課題は、実在有報でのMapping検証、平均自己資本・CapEx等の自動導出、株価Data Sourceとの結合、実データEnd-to-End分析です。
 
 ## ドキュメント
 
