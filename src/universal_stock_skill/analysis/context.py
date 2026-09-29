@@ -25,7 +25,16 @@ class AnalysisContext(BaseModel):
 
     @property
     def metric_ids(self) -> set[str]:
-        return set(self.deterministic_metrics)
+        derivation_ids = {
+            f"derivation:{key}"
+            for key, value in self.derivations.items()
+            if value is not None and not key.endswith("_method")
+        }
+        return {
+            *self.deterministic_metrics,
+            *self.trends,
+            *derivation_ids,
+        }
 
 
 def build_analysis_context(bundle: StockAnalysisDataBundle) -> AnalysisContext:
