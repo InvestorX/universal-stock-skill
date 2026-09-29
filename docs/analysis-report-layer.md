@@ -81,6 +81,43 @@ It does not yet automatically contain:
 
 The report must not invent those sections. It should leave unsupported conclusions empty or state the limitation.
 
+## Structured peer analysis
+
+When peer metrics are present, the final report can use `peer_analysis` in addition to the backward-compatible free-form `peer_comparison` text.
+
+`peer_analysis` has grounded subsections for:
+
+- profitability
+- valuation
+- growth
+- cash flow
+- competitive position
+
+Each populated subsection contains text plus one or more `claim_ids`. Those IDs must point to claims in the report, and every linked claim must reference at least one `peer:` metric ID or `peer:` evidence ID.
+
+~~~json
+{
+  "peer_analysis": {
+    "profitability": {
+      "text": "Subject margins and ROE are stronger in the supplied comparison.",
+      "claim_ids": ["peer-operating-margin", "peer-roe"]
+    },
+    "valuation": {
+      "text": "Conventional PER is unavailable for loss-making peers.",
+      "claim_ids": ["peer-negative-per"]
+    }
+  }
+}
+~~~
+
+Grounding rejects:
+
+- structured peer analysis when `AnalysisContext.peer_metrics` is empty
+- unknown claim IDs
+- claims linked into peer sections that do not cite any `peer:` metric or evidence ID
+
+This makes the peer narrative traceable to the same deterministic comparison rows used by the analysis context.
+
 ## Standalone runtime
 
 StockAnalysisWorkflow now has three entry points:
