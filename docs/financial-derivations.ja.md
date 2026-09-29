@@ -18,13 +18,19 @@ flowchart LR
 
 ## 平均自己資本
 
-第一選択は、有報に記載された公式ROEの分母を逆算する方法です。
+IFRS / US-GAAPで当期・前期のowners' equityを安全に取得できる場合は、2時点平均を第一選択にします。
+
+~~~text
+average_equity = (current_owners_equity + prior_owners_equity) / 2
+~~~
+
+公式ROEは既に丸められている場合があるため、そのROEから逆算するより実際の残高2点を使う方が再現性が高いためです。
+
+安全な2時点owners' equityが利用できない場合のみ、公式ROEから分母を逆算します。
 
 ~~~text
 average_equity = net_income / official_roe
 ~~~
-
-これにより、J-GAAPの純資産を自己資本として勝手に扱うことを避けます。
 
 ROEの正規化は保守的に行います。
 
@@ -32,9 +38,9 @@ ROEの正規化は保守的に行います。
 - 1を超える値はpercent系unitが明示されている場合のみ100で割る
 - unitなしで10などの曖昧な値は採用しない
 
-公式ROEがない場合は、現在のCanonical Mappingが親会社所有者帰属持分を優先するIFRS / US-GAAPについてのみ、当期と前期のnet_assetsから2時点平均を許可します。
+J-GAAPのnet_assetsは平均自己資本へ自動代入しません。J-GAAPでは明示的なowners' equity Mappingが整うまでは公式ROE逆算を安全なFallbackとして扱います。
 
-J-GAAPのnet_assetsは平均自己資本へ自動代入しません。
+この優先順位変更はToyota FY2026の実在企業Regressionで見つかりました。公表ROEは10.1%へ丸められていますが、FY2025/FY2026のToyota shareholders' equityを2時点平均すると、逆算せずに10.1%へ整合します。
 
 ## CapEx
 
