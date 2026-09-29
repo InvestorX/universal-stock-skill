@@ -26,7 +26,7 @@ __all__ = [
     "average_two_periods",
     "build_financial_snapshot",
     "calculate_canonical_trend",
-    "evaluate_snapshot_readiness",
     "calculate_canonical_trends",
     "calculate_stock_metrics",
+    "evaluate_snapshot_readiness",
 ]
