@@ -61,7 +61,7 @@ If no historical as-of is requested, use the current time available to the host 
 7. Analyze balance-sheet quality and cash flow.
 8. Evaluate valuation using explicitly dated inputs.
 9. Compare peers on a consistent basis when requested.
-10. When peer comparison is requested, use peer bundles aligned to the same as-of timestamp and prefer deterministic peer metric IDs over mental recalculation.
+10. When peer comparison is requested, use peer data aligned to the same as-of timestamp and the same comparable accounting period end; do not assume issuer fiscal-year labels mean the same period. Prefer deterministic peer metric IDs over mental recalculation.
 11. For news, timely disclosures, or company IR, preserve source_id, published_at, URL, and enough excerpt/context to support material claims.
 12. Identify growth drivers, catalysts, and material risks only from supplied evidence.
 13. Build scenarios with explicit assumptions rather than hidden forecasts.
