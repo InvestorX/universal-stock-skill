@@ -4,8 +4,7 @@ from datetime import UTC, datetime
 
 import pytest
 
-from universal_stock_skill.analysis.peer_orchestrator import PeerAnalysisOrchestrator
-from universal_stock_skill.analysis.peers import PeerComparisonError
+from universal_stock_skill.analysis import PeerAnalysisOrchestrator, PeerComparisonError
 
 
 AS_OF = datetime(2026, 9, 29, 12, 0, tzinfo=UTC)
