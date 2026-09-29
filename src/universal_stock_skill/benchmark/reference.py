@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import date, datetime
 from decimal import Decimal
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 from universal_stock_skill.evidence.collection import EvidenceItem
 
@@ -32,6 +32,25 @@ class StockReferenceCase(BaseModel):
         if value.tzinfo is None or value.utcoffset() is None:
             raise ValueError("as_of must be timezone-aware")
         return value
+
+    @model_validator(mode="after")
+    def validate_reference_case(self) -> StockReferenceCase:
+        fiscal_years = [period.fiscal_year for period in self.periods]
+        if len(fiscal_years) != len(set(fiscal_years)):
+            raise ValueError("reference fiscal_year values must be unique")
+
+        normalized_symbol = self.symbol.strip().upper()
+        for item in self.qualitative_evidence:
+            if item.symbol.strip().upper() != normalized_symbol:
+                raise ValueError(
+                    f"reference evidence symbol mismatch: {item.symbol}"
+                )
+            if item.record.published_at > self.as_of:
+                raise ValueError(
+                    f"reference evidence {item.record.source_id} is newer than as_of"
+                )
+
+        return self
 
     def period(self, fiscal_year: str) -> FinancialReferencePeriod:
         for period in self.periods:
