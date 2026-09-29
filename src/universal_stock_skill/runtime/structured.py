@@ -7,7 +7,6 @@ from pydantic import BaseModel, ValidationError
 
 from universal_stock_skill.llm import LLMResponse
 
-
 TModel = typing.TypeVar("TModel", bound=BaseModel)
 
 
