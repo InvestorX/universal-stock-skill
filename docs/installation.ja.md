@@ -13,11 +13,17 @@ Skillの正本は .agents/skills/stock-analysis にあります。
 | Codex | .agents/skills/stock-analysis | ~/.agents/skills/stock-analysis | $stock-analysis |
 | Claude Code | .claude/skills/stock-analysis | ~/.claude/skills/stock-analysis | /stock-analysis |
 | Antigravity CLI | .agents/skills/stock-analysis | ~/.gemini/antigravity-cli/skills/stock-analysis | /stock-analysis |
-| Hermes Agent | .agents/skills/stock-analysis または .hermes/skills | ~/.hermes/skills/... | /stock-analysis |
+| Hermes Agent | .agents/skills/stock-analysis | ~/.hermes/skills/stock-analysis | /stock-analysis |
 
 ## このRepository内で使う
 
-Codex、Antigravity CLI、現在のHermes Agentは、commit済みの .agents/skills/stock-analysis をProject Skillとして直接検出できます。
+CodexとAntigravity CLIは、commit済みの .agents/skills/stock-analysis をProject Skillとして直接検出できます。
+
+Hermesも .agents/skills を検出しますが、初回はRepositoryをtrustします。
+
+~~~bash
+hermes skills trust
+~~~
 
 Claude CodeだけProject pathが異なるため、次を実行します。
 
@@ -44,9 +50,9 @@ python scripts/install_agent_skill.py --agent all --scope user
 
 ## Codex
 
-CodexはRepository / User Skillとして .agents/skills を検出します。明示利用は $stock-analysis です。
+このRepositoryではPortableなProject Skillを .agents/skills/stock-analysis に配置します。
 
-このSkillがOpenAI API endpointを別途要求することはありません。現在のCodex sessionのmodel/auth設定へ委譲します。
+明示利用は $stock-analysis です。SkillがOpenAI API endpointを別途要求することはなく、現在のCodex sessionのmodel/auth設定へ委譲します。
 
 公式: https://developers.openai.com/codex/skills
 
@@ -72,7 +78,11 @@ Project Skillは .agents/skills、Global Skillは ~/.gemini/antigravity-cli/skil
 
 ## Hermes Agent
 
-現在のHermesはGit Repository内の .agents/skills をProject-local Skillとして検出できます。このRepositoryでは追加コピー不要です。
+Hermesはtrust済みGit Repository内の .agents/skills をProject-local Skillとして検出します。
+
+~~~bash
+hermes skills trust
+~~~
 
 User導入:
 
