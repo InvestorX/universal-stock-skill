@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
+from pydantic import BaseModel
+
 from universal_stock_skill.data.canonical import (
     CanonicalFinancialMapper,
     CanonicalFinancialSeries,
@@ -14,6 +16,11 @@ from universal_stock_skill.data.edinet_csv import EDINETCsvArchive, EDINETCsvFac
 
 class EDINETPipelineError(ValueError):
     pass
+
+
+class EDINETCanonicalBundle(BaseModel):
+    current: CanonicalFinancialSet
+    series: CanonicalFinancialSeries
 
 
 @dataclass
@@ -39,6 +46,18 @@ class EDINETCanonicalPipeline:
     ) -> CanonicalFinancialSeries:
         facts = await self._load_facts(document)
         return self.mapper.resolve_series(facts, years=years)
+
+    async def load_document_bundle(
+        self,
+        document: EDINETDocument,
+        *,
+        years: int = 5,
+    ) -> EDINETCanonicalBundle:
+        facts = await self._load_facts(document)
+        return EDINETCanonicalBundle(
+            current=self.mapper.resolve(facts),
+            series=self.mapper.resolve_series(facts, years=years),
+        )
 
     async def _load_facts(
         self,
