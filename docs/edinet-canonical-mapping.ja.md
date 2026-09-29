@@ -121,3 +121,21 @@ Mapperではcontextをyear offsetへ正規化します。
 基準値が0以下の場合は、赤字→黒字などに誤解を招く成長率を出さず `None` とします。
 
 2時点平均は汎用関数として提供しますが、`net_assets` をそのままROE用の自己資本へ自動代入はしません。JP GAAPの株主資本とIFRSの親会社所有者帰属持分は厳密には同一概念ではないためです。
+
+
+## Mapping Quality Report
+
+`evaluate_mapping_quality()` で、現在のCanonical Mapping結果を定量評価できます。
+
+出力:
+
+- 要求指標数
+- Mapping成功数
+- 標準Taxonomy完全一致数
+- Extension Fallback数
+- 欠損指標数
+- coverage率
+- fallback率
+- Fallbackに依存した指標一覧
+
+これにより、実有報で「何か値が出たからOK」ではなく、Mapping品質を数値で追跡できます。RRSIやRegression Testの評価値にも利用できます。
