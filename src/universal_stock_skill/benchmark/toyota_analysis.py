@@ -31,7 +31,6 @@ from universal_stock_skill.data.canonical import (
 from universal_stock_skill.data.market import MarketSnapshot
 from universal_stock_skill.evidence.collection import EvidenceItem
 
-
 MILLION_YEN = Decimal(1_000_000)
 
 TOYOTA_REFERENCE_TREND_METRICS = [
