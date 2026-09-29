@@ -14,7 +14,7 @@ flowchart LR
     C --> A[銘柄分析 / 財務指標計算]
 ~~~
 
-初期実装は保守的です。既知の標準Taxonomy element IDだけをMappingし、分からない値は無理に推定せずmissingとして残します。
+まず既知の標準Taxonomy element IDを完全一致でMappingします。標準Mappingで取れなかった場合だけ、revenueとoperating_incomeに限定して企業独自拡張IDのFallbackを許可します。
 
 ## Core指標
 
@@ -68,8 +68,16 @@ revenue は業種をまたいで完全に同一概念とは限りません。
 
 たとえば金融機関では、一般事業会社の売上高に相当する入口指標として経常収益が使われることがあります。こうしたMappingにはsemantic noteを付け、Peer比較で同一概念と誤認しないようにします。
 
-## 現在の制約
+## Extension Fallback
 
-初期LayerはEDINET標準Taxonomyの完全一致Mappingです。企業独自拡張elementはまだ推測しません。
+Fallbackは意図的に狭くしています。
 
-次のFallback Layerでは、企業拡張IDのsuffixを限定的に検出しつつ、セグメント間売上や原価などのfalse positiveを決定論的に除外します。
+- 標準Taxonomyの完全一致で取れなかった場合だけ実行
+- 有価証券報告書の企業拡張namespaceだけを対象
+- 現在はrevenueとoperating_incomeのみ
+- SummaryOfBusinessResults / KeyFinancialData系のlocal nameを要求
+- Intersegment / Segment / Cost / Expense / PerShare / Ratio等を除外
+- 結果にmatch_type=extension_fallbackを保持
+- 元element IDを必ず保持
+
+次は実在企業の有報でFallback ruleを検証し、CanonicalFinancialSetからFinancialSnapshotへの変換へ接続します。
