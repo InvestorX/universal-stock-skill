@@ -7,7 +7,6 @@ from universal_stock_skill.data.edinet import EDINETDocument
 from universal_stock_skill.data.filing_discovery import AnnualFilingDiscovery
 from universal_stock_skill.data.filings import FilingResolutionError
 
-
 JST = ZoneInfo("Asia/Tokyo")
 
 
