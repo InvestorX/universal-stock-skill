@@ -4,11 +4,12 @@ from dataclasses import dataclass, field
 
 from universal_stock_skill.data.canonical import (
     CanonicalFinancialMapper,
+    CanonicalFinancialSeries,
     CanonicalFinancialSet,
 )
 from universal_stock_skill.data.canonical_mappings import DEFAULT_CANONICAL_MAPPER
 from universal_stock_skill.data.edinet import EDINETClient, EDINETDocument
-from universal_stock_skill.data.edinet_csv import EDINETCsvArchive
+from universal_stock_skill.data.edinet_csv import EDINETCsvArchive, EDINETCsvFact
 
 
 class EDINETPipelineError(ValueError):
@@ -27,6 +28,22 @@ class EDINETCanonicalPipeline:
         self,
         document: EDINETDocument,
     ) -> CanonicalFinancialSet:
+        facts = await self._load_facts(document)
+        return self.mapper.resolve(facts)
+
+    async def load_document_series(
+        self,
+        document: EDINETDocument,
+        *,
+        years: int = 5,
+    ) -> CanonicalFinancialSeries:
+        facts = await self._load_facts(document)
+        return self.mapper.resolve_series(facts, years=years)
+
+    async def _load_facts(
+        self,
+        document: EDINETDocument,
+    ) -> list[EDINETCsvFact]:
         if document.csv_flag not in {None, "1"}:
             raise EDINETPipelineError(
                 f"document {document.doc_id} does not advertise CSV availability"
@@ -36,5 +53,4 @@ class EDINETCanonicalPipeline:
             document.doc_id,
             document_type=5,
         )
-        facts = self.archive_parser.parse(payload)
-        return self.mapper.resolve(facts)
+        return self.archive_parser.parse(payload)
