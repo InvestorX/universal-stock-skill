@@ -13,6 +13,8 @@ flowchart LR
     P --> F[EDINETCsvFact]
     F --> C[CanonicalFinancialMapper]
     C --> CF[CanonicalFinancialSet]
+    C --> TS[CanonicalFinancialSeries]
+    TS --> TR[YoY / CAGR trends]
     CF --> B[FinancialSnapshot bridge]
     B --> FS[FinancialSnapshot]
     FS --> M[Deterministic stock metrics]
@@ -83,3 +85,10 @@ python scripts/inspect_edinet_csv.py path/to/document.zip
 ~~~
 
 This is the preferred path for reproducible fixture validation because the exact source archive can be retained locally.
+
+
+## Historical pipeline
+
+`EDINETCanonicalPipeline.load_document_series(document, years=5)` downloads and parses the filing once, then resolves CurrentYear / PriorNYear facts into a canonical historical series.
+
+This feeds deterministic trend analysis directly; the LLM receives already-aligned periods and calculated growth metrics rather than being asked to infer them from raw rows.
