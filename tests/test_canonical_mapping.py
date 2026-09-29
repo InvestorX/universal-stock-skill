@@ -290,6 +290,21 @@ def test_company_extension_net_income_excludes_ordinary_profit() -> None:
     assert resolved.match_type == MappingMatchType.EXTENSION_FALLBACK
 
 
+def test_net_income_fallback_excludes_business_profit() -> None:
+    resolved = DEFAULT_CANONICAL_MAPPER.resolve_metric(
+        [
+            fact(
+                "jpcrp030000-asr_E12345-000:"
+                "BusinessProfitSummaryOfBusinessResults",
+                "120",
+            )
+        ],
+        CanonicalMetric.NET_INCOME,
+    )
+
+    assert resolved is None
+
+
 def test_extension_fallback_excludes_intersegment_revenue() -> None:
     resolved = DEFAULT_CANONICAL_MAPPER.resolve_metric(
         [
