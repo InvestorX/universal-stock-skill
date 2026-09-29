@@ -353,3 +353,64 @@ def test_exact_standard_mapping_wins_over_company_extension_fallback() -> None:
     assert resolved is not None
     assert resolved.value == Decimal(2400)
     assert resolved.match_type == MappingMatchType.STANDARD_EXACT
+
+
+def test_year_offset_can_select_prior_period_fact() -> None:
+    facts = [
+        fact(
+            "jpcrp_cor:NetSalesSummaryOfBusinessResults",
+            "1000",
+            context_id="CurrentYearDuration",
+            relative_year="当期",
+        ),
+        fact(
+            "jpcrp_cor:NetSalesSummaryOfBusinessResults",
+            "900",
+            context_id="Prior1YearDuration",
+            relative_year="前期",
+            row_number=3,
+        ),
+    ]
+
+    prior = DEFAULT_CANONICAL_MAPPER.resolve_metric(
+        facts,
+        CanonicalMetric.REVENUE,
+        current_year_only=False,
+        year_offset=1,
+    )
+
+    assert prior is not None
+    assert prior.value == Decimal(900)
+
+
+def test_resolve_series_builds_current_and_prior_periods() -> None:
+    facts = [
+        fact(
+            "jpcrp_cor:NetSalesSummaryOfBusinessResults",
+            "1000",
+            context_id="CurrentYearDuration",
+            relative_year="当期",
+        ),
+        fact(
+            "jpcrp_cor:NetSalesSummaryOfBusinessResults",
+            "900",
+            context_id="Prior1YearDuration",
+            relative_year="前期",
+            row_number=3,
+        ),
+    ]
+
+    series = DEFAULT_CANONICAL_MAPPER.resolve_series(
+        facts,
+        metrics=[CanonicalMetric.REVENUE],
+        years=3,
+    )
+
+    current = series.get(0)
+    prior = series.get(1)
+
+    assert current is not None
+    assert prior is not None
+    assert current.get(CanonicalMetric.REVENUE).value == Decimal(1000)
+    assert prior.get(CanonicalMetric.REVENUE).value == Decimal(900)
+    assert series.get(2) is None
