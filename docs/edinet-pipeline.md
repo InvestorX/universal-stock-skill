@@ -75,3 +75,11 @@ python scripts/inspect_edinet_document.py S100XXXX
 The command downloads EDINET document type 5, parses its XBRL-to-CSV archive, applies canonical mapping, and prints the mapped facts and missing metrics.
 
 It does not invoke an LLM.
+
+If a type=5 ZIP has already been downloaded, no API key is needed:
+
+~~~bash
+python scripts/inspect_edinet_csv.py path/to/document.zip
+~~~
+
+This is the preferred path for reproducible fixture validation because the exact source archive can be retained locally.
