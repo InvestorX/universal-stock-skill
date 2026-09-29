@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+import os
 from datetime import date, datetime, time, timedelta
-from typing import Any
+from typing import Any, Self
 from zoneinfo import ZoneInfo
 
 import httpx
@@ -19,6 +20,13 @@ class JQuantsConfig(BaseModel):
     base_url: str = "https://api.jquants.com/v2"
     lookback_days: int = Field(default=14, ge=1, le=60)
     timeout_seconds: float = Field(default=30.0, gt=0)
+
+    @classmethod
+    def from_env(cls) -> Self:
+        api_key = os.environ.get("JQUANTS_API_KEY")
+        if not api_key:
+            raise ValueError("JQUANTS_API_KEY is required")
+        return cls(api_key=api_key)
 
 
 class JQuantsMarketDataError(ValueError):
