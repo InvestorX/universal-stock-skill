@@ -22,7 +22,11 @@ from .canonical_mappings import (
 from .canonical_quality import CanonicalMappingQuality, evaluate_mapping_quality
 from .edinet import EDINETClient, EDINETConfig, EDINETDocument
 from .edinet_csv import EDINETCsvArchive, EDINETCsvArchiveConfig, EDINETCsvFact
-from .edinet_pipeline import EDINETCanonicalPipeline, EDINETPipelineError
+from .edinet_pipeline import (
+    EDINETCanonicalBundle,
+    EDINETCanonicalPipeline,
+    EDINETPipelineError,
+)
 from .facts import FactQuery, FactSet
 from .filings import (
     ANNUAL_REPORT_CORRECTION_DOC_TYPE,
@@ -51,6 +55,7 @@ __all__ = [
     "CanonicalMetric",
     "ConsolidationPreference",
     "DisclosureDataSource",
+    "EDINETCanonicalBundle",
     "EDINETCanonicalPipeline",
     "EDINETClient",
     "EDINETConfig",
