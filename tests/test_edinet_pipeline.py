@@ -13,6 +13,7 @@ from universal_stock_skill.analysis import (
     calculate_stock_metrics,
 )
 from universal_stock_skill.data import (
+    CanonicalMetric,
     EDINETCanonicalPipeline,
     EDINETClient,
     EDINETConfig,
@@ -44,6 +45,17 @@ def build_csv_zip() -> bytes:
             "JPY",
             "円",
             "48000000000000",
+        ],
+        [
+            "jpcrp_cor:NetSalesSummaryOfBusinessResults",
+            "売上高",
+            "Prior1YearDuration",
+            "前期",
+            "連結",
+            "期間",
+            "JPY",
+            "円",
+            "44000000000000",
         ],
         [
             "jppfs_cor:OperatingIncome",
@@ -159,3 +171,33 @@ async def test_edinet_csv_to_stock_metrics_pipeline() -> None:
     assert snapshot.net_income == 5_000_000_000_000
     assert metrics.operating_margin == pytest.approx(0.125)
     assert metrics.free_cash_flow == 3_000_000_000_000
+
+
+@pytest.mark.asyncio
+async def test_pipeline_can_build_historical_canonical_series() -> None:
+    client = EDINETClient(
+        EDINETConfig(api_key="test-key"),
+        transport=transport(),
+    )
+    document = EDINETDocument(
+        docID="S100DEMO",
+        secCode="72030",
+        filerName="Demo Corporation",
+        docTypeCode="120",
+        submitDateTime="2026-06-20 15:00",
+        periodEnd="2026-03-31",
+        csvFlag="1",
+    )
+
+    series = await EDINETCanonicalPipeline(client).load_document_series(
+        document,
+        years=3,
+    )
+
+    current = series.get(0)
+    prior = series.get(1)
+
+    assert current is not None
+    assert prior is not None
+    assert current.get(CanonicalMetric.REVENUE).value == 48_000_000_000_000
+    assert prior.get(CanonicalMetric.REVENUE).value == 44_000_000_000_000
