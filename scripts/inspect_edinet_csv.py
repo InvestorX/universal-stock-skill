@@ -5,7 +5,10 @@ import json
 from pathlib import Path
 from typing import Any
 
-from universal_stock_skill.analysis import calculate_canonical_trends
+from universal_stock_skill.analysis import (
+    calculate_canonical_trends,
+    evaluate_snapshot_readiness,
+)
 from universal_stock_skill.data import (
     DEFAULT_CANONICAL_MAPPER,
     CanonicalMetric,
@@ -28,11 +31,13 @@ def build_inspection_payload(payload: bytes, *, years: int = 5) -> dict[str, Any
     series = DEFAULT_CANONICAL_MAPPER.resolve_series(facts, years=years)
     trends = calculate_canonical_trends(series, TREND_METRICS)
     quality = evaluate_mapping_quality(canonical)
+    readiness = evaluate_snapshot_readiness(canonical)
 
     return {
         "fact_count": len(facts),
         "current": canonical.model_dump(mode="json"),
         "mapping_quality": quality.model_dump(mode="json"),
+        "snapshot_readiness": readiness.model_dump(mode="json"),
         "series": series.model_dump(mode="json"),
         "trends": trends.model_dump(mode="json"),
     }
