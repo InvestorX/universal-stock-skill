@@ -6,7 +6,6 @@ import pytest
 
 from scripts.inspect_edinet_csv import build_inspection_payload, main
 
-
 HEADERS = [
     "要素ID",
     "項目名",
