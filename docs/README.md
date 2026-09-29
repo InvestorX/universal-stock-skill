@@ -10,6 +10,7 @@
 - [EDINET canonical financial mapping](edinet-canonical-mapping.md)
 - [EDINET analysis pipeline](edinet-pipeline.md)
 - [Market data model](market-data.md)
+- [J-Quants market-data adapter](jquants-market.md)
 - [Benchmark specification](benchmark-spec.md)
 - [RRSI design](rrsi-design.md)
 
