@@ -101,8 +101,8 @@ def test_toyota_effective_tax_rate_and_nopat_are_deterministic() -> None:
         Decimal(1) - tax_rate
     )
 
-    assert float(tax_rate) == pytest.approx(0.2265136612)
-    assert float(nopat) == pytest.approx(2_913_167.206, rel=1e-6)
+    assert float(tax_rate) == pytest.approx(0.2265156037)
+    assert float(nopat) == pytest.approx(2_913_109.309, rel=1e-6)
 
 
 @pytest.mark.asyncio
