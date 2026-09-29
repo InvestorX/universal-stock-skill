@@ -7,6 +7,7 @@ from universal_stock_skill.data.canonical import (
     CanonicalMappingConflict,
     CanonicalMetric,
     ConsolidationPreference,
+    MappingMatchType,
 )
 from universal_stock_skill.data.canonical_mappings import DEFAULT_CANONICAL_MAPPER
 from universal_stock_skill.data.edinet_csv import EDINETCsvFact
@@ -194,3 +195,71 @@ def test_equal_priority_conflicting_facts_raise_instead_of_guessing() -> None:
             facts,
             CanonicalMetric.REVENUE,
         )
+
+
+def test_company_extension_revenue_fallback_is_used_only_when_exact_is_missing() -> None:
+    resolved = DEFAULT_CANONICAL_MAPPER.resolve_metric(
+        [
+            fact(
+                "jpcrp030000-asr_E12345-000:RevenueIFRSKeyFinancialData",
+                "2500",
+            )
+        ],
+        CanonicalMetric.REVENUE,
+    )
+
+    assert resolved is not None
+    assert resolved.value == Decimal(2500)
+    assert resolved.match_type == MappingMatchType.EXTENSION_FALLBACK
+    assert resolved.accounting_standard == AccountingStandard.IFRS
+
+
+def test_company_extension_operating_income_fallback_handles_curated_names() -> None:
+    resolved = DEFAULT_CANONICAL_MAPPER.resolve_metric(
+        [
+            fact(
+                "jpcrp030000-asr_E12345-000:CoreOperatingIncomeIFRSKeyFinancialData",
+                "300",
+            )
+        ],
+        CanonicalMetric.OPERATING_INCOME,
+    )
+
+    assert resolved is not None
+    assert resolved.value == Decimal(300)
+    assert resolved.match_type == MappingMatchType.EXTENSION_FALLBACK
+
+
+def test_extension_fallback_excludes_intersegment_revenue() -> None:
+    resolved = DEFAULT_CANONICAL_MAPPER.resolve_metric(
+        [
+            fact(
+                "jpcrp030000-asr_E12345-000:IntersegmentRevenueIFRSSummaryOfBusinessResults",
+                "999",
+            )
+        ],
+        CanonicalMetric.REVENUE,
+    )
+
+    assert resolved is None
+
+
+def test_exact_standard_mapping_wins_over_company_extension_fallback() -> None:
+    resolved = DEFAULT_CANONICAL_MAPPER.resolve_metric(
+        [
+            fact(
+                "jpcrp030000-asr_E12345-000:RevenueIFRSKeyFinancialData",
+                "2500",
+            ),
+            fact(
+                "jpcrp_cor:RevenueIFRSSummaryOfBusinessResults",
+                "2400",
+                row_number=3,
+            ),
+        ],
+        CanonicalMetric.REVENUE,
+    )
+
+    assert resolved is not None
+    assert resolved.value == Decimal(2400)
+    assert resolved.match_type == MappingMatchType.STANDARD_EXACT
