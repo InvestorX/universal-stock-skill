@@ -110,8 +110,13 @@ class StockAnalysisWorkflow:
                         "must be clearly phrased as interpretation. Scenarios must be "
                         "explicit assumptions, not factual predictions. If peer, news, "
                         "guidance, or catalyst evidence is absent, leave those conclusions "
-                        "empty or state the limitation. Return a StockAnalysisReport that "
-                        "conforms exactly to the requested schema."
+                        "empty or state the limitation. When peer_metrics are present, "
+                        "populate peer_analysis with the supported profitability, valuation, "
+                        "growth, cash-flow, and competitive-position sections. Every populated "
+                        "peer_analysis section must reference claim_ids from claims, and those "
+                        "claims must cite at least one peer: metric or peer: evidence ID. "
+                        "Return a StockAnalysisReport that conforms exactly to the requested "
+                        "schema."
                     ),
                 ),
                 Message(
