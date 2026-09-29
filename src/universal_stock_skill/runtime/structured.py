@@ -1,14 +1,14 @@
 from __future__ import annotations
 
 import json
-from typing import TypeVar
+import typing
 
 from pydantic import BaseModel, ValidationError
 
 from universal_stock_skill.llm import LLMResponse
 
 
-TModel = TypeVar("TModel", bound=BaseModel)
+TModel = typing.TypeVar("TModel", bound=BaseModel)
 
 
 class StructuredOutputError(ValueError):
