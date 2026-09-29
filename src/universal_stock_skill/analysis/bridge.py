@@ -8,11 +8,29 @@ from universal_stock_skill.analysis.models import FinancialSnapshot
 from universal_stock_skill.data.canonical import (
     CanonicalFinancialSet,
     CanonicalMetric,
+    MappingMatchType,
+)
+
+
+SNAPSHOT_CANONICAL_REQUIREMENTS = (
+    CanonicalMetric.REVENUE,
+    CanonicalMetric.OPERATING_INCOME,
+    CanonicalMetric.NET_INCOME,
+    CanonicalMetric.EPS,
+    CanonicalMetric.BPS,
+    CanonicalMetric.CF_OPERATING,
 )
 
 
 class MissingCanonicalMetric(ValueError):
     pass
+
+
+class SnapshotCanonicalReadiness(BaseModel):
+    ready: bool
+    required_metrics: list[CanonicalMetric]
+    missing_metrics: list[CanonicalMetric]
+    fallback_metrics: list[CanonicalMetric]
 
 
 class SnapshotBridgeInputs(BaseModel):
@@ -31,6 +49,31 @@ class SnapshotBridgeInputs(BaseModel):
         if value.tzinfo is None or value.utcoffset() is None:
             raise ValueError("as_of must be timezone-aware")
         return value
+
+
+def evaluate_snapshot_readiness(
+    canonical: CanonicalFinancialSet,
+) -> SnapshotCanonicalReadiness:
+    missing = [
+        metric
+        for metric in SNAPSHOT_CANONICAL_REQUIREMENTS
+        if canonical.get(metric) is None
+    ]
+    fallback = [
+        metric
+        for metric in SNAPSHOT_CANONICAL_REQUIREMENTS
+        if (
+            (fact := canonical.get(metric)) is not None
+            and fact.match_type == MappingMatchType.EXTENSION_FALLBACK
+        )
+    ]
+
+    return SnapshotCanonicalReadiness(
+        ready=not missing,
+        required_metrics=list(SNAPSHOT_CANONICAL_REQUIREMENTS),
+        missing_metrics=missing,
+        fallback_metrics=fallback,
+    )
 
 
 def build_financial_snapshot(
