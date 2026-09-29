@@ -93,6 +93,16 @@ When a deterministic AnalysisContext is available:
 - leave peer comparison, news-driven catalysts, or guidance conclusions empty when their evidence was not supplied
 - keep scenario statements explicitly labelled as assumptions
 
+When deterministic peer metrics are available, prefer the structured `peer_analysis` output contract:
+
+- profitability
+- valuation
+- growth
+- cash flow
+- competitive position
+
+Each populated peer subsection must reference existing structured claim IDs, and those claims must cite supplied `peer:` metric or evidence IDs. Do not create a peer subsection from unsupported prose alone.
+
 ## Verification
 
 Before finishing, verify:
