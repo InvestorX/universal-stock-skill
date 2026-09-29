@@ -13,11 +13,17 @@ Normal Agent Skill use does **not** require an additional LLM endpoint. The acti
 | Codex | .agents/skills/stock-analysis | ~/.agents/skills/stock-analysis | $stock-analysis |
 | Claude Code | .claude/skills/stock-analysis | ~/.claude/skills/stock-analysis | /stock-analysis |
 | Antigravity CLI | .agents/skills/stock-analysis | ~/.gemini/antigravity-cli/skills/stock-analysis | /stock-analysis |
-| Hermes Agent | .agents/skills/stock-analysis or .hermes/skills | ~/.hermes/skills/... | /stock-analysis |
+| Hermes Agent | .agents/skills/stock-analysis | ~/.hermes/skills/stock-analysis | /stock-analysis |
 
 ## In this repository
 
-Codex, Antigravity CLI, and current Hermes Agent can discover the checked-in .agents/skills/stock-analysis project skill directly.
+Codex and Antigravity CLI can discover the checked-in .agents/skills/stock-analysis project skill directly.
+
+Hermes also discovers project-local .agents/skills, but a repository must be trusted before those skills are loaded:
+
+~~~bash
+hermes skills trust
+~~~
 
 Claude Code uses a different project path:
 
@@ -44,9 +50,11 @@ Use --force to replace an existing installed copy.
 
 ## Codex
 
-Codex discovers repository and user skills under .agents/skills. Invoke explicitly with $stock-analysis, or let the description trigger it implicitly.
+Codex uses Agent Skills compatible SKILL.md bundles. This repository keeps the portable project skill under .agents/skills/stock-analysis.
 
-The skill does not configure an OpenAI API endpoint; it uses the model/auth configuration of the current Codex session.
+Invoke it explicitly as $stock-analysis, or let its description trigger it when relevant.
+
+The skill does not configure an OpenAI API endpoint; it delegates to the model/auth configuration of the current Codex session.
 
 Official reference: https://developers.openai.com/codex/skills
 
@@ -72,7 +80,11 @@ Official reference: https://antigravity.google/docs/skills
 
 ## Hermes Agent
 
-Current Hermes detects project-local .agents/skills inside Git repositories, so this repository works without a duplicate project copy.
+Hermes detects project-local .agents/skills inside trusted Git repositories.
+
+~~~bash
+hermes skills trust
+~~~
 
 For a user install:
 
