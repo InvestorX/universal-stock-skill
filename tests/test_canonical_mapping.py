@@ -8,6 +8,7 @@ from universal_stock_skill.data.canonical import (
     CanonicalMetric,
     ConsolidationPreference,
     MappingMatchType,
+    infer_accounting_standard,
 )
 from universal_stock_skill.data.canonical_mappings import DEFAULT_CANONICAL_MAPPER
 from universal_stock_skill.data.edinet_csv import EDINETCsvFact
@@ -102,6 +103,17 @@ def test_ifrs_aliases_resolve_to_same_canonical_metrics() -> None:
         item.accounting_standard == AccountingStandard.IFRS
         for item in result.facts
     )
+
+
+def test_standard_pl_net_sales_can_supply_revenue() -> None:
+    resolved = DEFAULT_CANONICAL_MAPPER.resolve_metric(
+        [fact("jppfs_cor:NetSales", "1234")],
+        CanonicalMetric.REVENUE,
+    )
+
+    assert resolved is not None
+    assert resolved.value == Decimal(1234)
+    assert resolved.match_type == MappingMatchType.STANDARD_EXACT
 
 
 def test_current_year_is_preferred_and_prior_year_is_filtered() -> None:
@@ -214,6 +226,30 @@ def test_company_extension_revenue_fallback_is_used_only_when_exact_is_missing()
     assert resolved.accounting_standard == AccountingStandard.IFRS
 
 
+def test_extension_standard_is_inferred_from_other_current_year_facts() -> None:
+    facts = [
+        fact(
+            "jpcrp030000-asr_E02144-000:"
+            "RevenueFromContractsWithCustomersSummaryOfBusinessResults",
+            "48000",
+        ),
+        fact(
+            "ifrs-full:ProfitLoss",
+            "5000",
+            row_number=3,
+        ),
+    ]
+
+    resolved = DEFAULT_CANONICAL_MAPPER.resolve_metric(
+        facts,
+        CanonicalMetric.REVENUE,
+    )
+
+    assert resolved is not None
+    assert resolved.accounting_standard == AccountingStandard.IFRS
+    assert infer_accounting_standard(facts) == AccountingStandard.IFRS
+
+
 def test_company_extension_operating_income_fallback_handles_curated_names() -> None:
     resolved = DEFAULT_CANONICAL_MAPPER.resolve_metric(
         [
@@ -230,11 +266,50 @@ def test_company_extension_operating_income_fallback_handles_curated_names() -> 
     assert resolved.match_type == MappingMatchType.EXTENSION_FALLBACK
 
 
+def test_company_extension_net_income_excludes_ordinary_profit() -> None:
+    facts = [
+        fact(
+            "jpcrp030000-asr_E12345-000:OrdinaryProfitSummaryOfBusinessResults",
+            "100",
+        ),
+        fact(
+            "jpcrp030000-asr_E12345-000:"
+            "ProfitAttributableToOwnersOfParentSummaryOfBusinessResults",
+            "80",
+            row_number=3,
+        ),
+    ]
+
+    resolved = DEFAULT_CANONICAL_MAPPER.resolve_metric(
+        facts,
+        CanonicalMetric.NET_INCOME,
+    )
+
+    assert resolved is not None
+    assert resolved.value == Decimal(80)
+    assert resolved.match_type == MappingMatchType.EXTENSION_FALLBACK
+
+
 def test_extension_fallback_excludes_intersegment_revenue() -> None:
     resolved = DEFAULT_CANONICAL_MAPPER.resolve_metric(
         [
             fact(
                 "jpcrp030000-asr_E12345-000:IntersegmentRevenueIFRSSummaryOfBusinessResults",
+                "999",
+            )
+        ],
+        CanonicalMetric.REVENUE,
+    )
+
+    assert resolved is None
+
+
+def test_extension_fallback_excludes_revenue_proceeds() -> None:
+    resolved = DEFAULT_CANONICAL_MAPPER.resolve_metric(
+        [
+            fact(
+                "jpcrp030000-asr_E12345-000:"
+                "ProceedsFromSaleRevenueSummaryOfBusinessResults",
                 "999",
             )
         ],
