@@ -41,6 +41,11 @@ class ConsolidationPreference(StrEnum):
     NON_CONSOLIDATED = "non_consolidated"
 
 
+class MappingMatchType(StrEnum):
+    STANDARD_EXACT = "standard_exact"
+    EXTENSION_FALLBACK = "extension_fallback"
+
+
 @dataclass(frozen=True)
 class ElementAlias:
     element_id: str
@@ -50,11 +55,36 @@ class ElementAlias:
     semantic_note: str | None = None
 
 
+@dataclass(frozen=True)
+class ExtensionRule:
+    contains_any: tuple[str, ...]
+    excluded_substrings: tuple[str, ...] = ()
+    required_suffixes: tuple[str, ...] = (
+        "SummaryOfBusinessResults",
+        "KeyFinancialData",
+    )
+    priority: int = 50
+    expected_period_type: str | None = None
+    semantic_note: str | None = None
+
+    def matches(self, fact: EDINETCsvFact) -> bool:
+        if not _is_company_extension(fact.element_id):
+            return False
+
+        local_name = _local_name(fact.element_id)
+        if self.required_suffixes and not local_name.endswith(self.required_suffixes):
+            return False
+        if not any(token in local_name for token in self.contains_any):
+            return False
+        return not any(token in local_name for token in self.excluded_substrings)
+
+
 class CanonicalFinancialFact(BaseModel):
     metric: CanonicalMetric
     value: Decimal
     unit: str
     accounting_standard: AccountingStandard
+    match_type: MappingMatchType
     element_id: str
     item_name: str
     context_id: str
@@ -78,9 +108,17 @@ class CanonicalMappingConflict(ValueError):
     pass
 
 
+Candidate = tuple[int, EDINETCsvFact, ElementAlias]
+
+
 class CanonicalFinancialMapper:
-    def __init__(self, mappings: dict[CanonicalMetric, tuple[ElementAlias, ...]]) -> None:
+    def __init__(
+        self,
+        mappings: dict[CanonicalMetric, tuple[ElementAlias, ...]],
+        extension_rules: dict[CanonicalMetric, tuple[ExtensionRule, ...]] | None = None,
+    ) -> None:
         self._mappings = mappings
+        self._extension_rules = extension_rules or {}
 
     def resolve_metric(
         self,
@@ -90,70 +128,104 @@ class CanonicalFinancialMapper:
         current_year_only: bool = True,
         consolidation: ConsolidationPreference = ConsolidationPreference.AUTO,
     ) -> CanonicalFinancialFact | None:
+        fact_list = tuple(facts)
+        exact = self._exact_candidates(
+            fact_list,
+            metric,
+            current_year_only=current_year_only,
+            consolidation=consolidation,
+        )
+        if exact:
+            return _select_candidate(
+                exact,
+                metric,
+                match_type=MappingMatchType.STANDARD_EXACT,
+            )
+
+        fallback = self._extension_candidates(
+            fact_list,
+            metric,
+            current_year_only=current_year_only,
+            consolidation=consolidation,
+        )
+        if fallback:
+            return _select_candidate(
+                fallback,
+                metric,
+                match_type=MappingMatchType.EXTENSION_FALLBACK,
+            )
+
+        return None
+
+    def _exact_candidates(
+        self,
+        facts: tuple[EDINETCsvFact, ...],
+        metric: CanonicalMetric,
+        *,
+        current_year_only: bool,
+        consolidation: ConsolidationPreference,
+    ) -> list[Candidate]:
         aliases = self._mappings.get(metric, ())
         alias_by_id = {alias.element_id: alias for alias in aliases}
-        candidates: list[tuple[int, EDINETCsvFact, ElementAlias]] = []
+        candidates: list[Candidate] = []
 
         for fact in facts:
             alias = alias_by_id.get(fact.element_id)
-            if alias is None or fact.numeric_value is None:
-                continue
-            if current_year_only and not _is_current_year(fact):
-                continue
-            if not _scope_allowed(fact, consolidation):
-                continue
-
-            score = _candidate_score(
+            if alias is None or not _eligible(
                 fact,
-                alias,
+                current_year_only=current_year_only,
                 consolidation=consolidation,
-            )
-            candidates.append((score, fact, alias))
-
-        if not candidates:
-            return None
-
-        candidates.sort(
-            key=lambda item: (
-                -item[0],
-                item[1].element_id,
-                item[1].context_id,
-                item[1].source_file,
-                item[1].row_number,
-            )
-        )
-        best_score = candidates[0][0]
-        best = [item for item in candidates if item[0] == best_score]
-
-        values = {(item[1].numeric_value, item[1].unit) for item in best}
-        if len(values) > 1:
-            locations = ", ".join(
-                f"{fact.source_file}:{fact.row_number}={fact.raw_value}"
-                for _, fact, _ in best
-            )
-            raise CanonicalMappingConflict(
-                f"conflicting {metric.value} facts at equal priority: {locations}"
+            ):
+                continue
+            candidates.append(
+                (
+                    _candidate_score(fact, alias, consolidation=consolidation),
+                    fact,
+                    alias,
+                )
             )
 
-        _, fact, alias = best[0]
-        value = fact.numeric_value
-        assert value is not None
+        return candidates
 
-        return CanonicalFinancialFact(
-            metric=metric,
-            value=value,
-            unit=fact.unit,
-            accounting_standard=alias.accounting_standard,
-            element_id=fact.element_id,
-            item_name=fact.item_name,
-            context_id=fact.context_id,
-            relative_year=fact.relative_year,
-            consolidation=fact.consolidation,
-            period_type=fact.period_type,
-            source_file=fact.source_file,
-            row_number=fact.row_number,
-            semantic_note=alias.semantic_note,
-        )
+    def _extension_candidates(
+        self,
+        facts: tuple[EDINETCsvFact, ...],
+        metric: CanonicalMetric,
+        *,
+        current_year_only: bool,
+        consolidation: ConsolidationPreference,
+    ) -> list[Candidate]:
+        rules = self._extension_rules.get(metric, ())
+        candidates: list[Candidate] = []
+
+        for fact in facts:
+            if not _eligible(
+                fact,
+                current_year_only=current_year_only,
+                consolidation=consolidation,
+            ):
+                continue
+
+            for rule in rules:
+                if not rule.matches(fact):
+                    continue
+                alias = ElementAlias(
+                    element_id=fact.element_id,
+                    accounting_standard=_infer_accounting_standard(fact.element_id),
+                    priority=rule.priority,
+                    expected_period_type=rule.expected_period_type,
+                    semantic_note=rule.semantic_note,
+                )
+                candidates.append(
+                    (
+                        _candidate_score(fact, alias, consolidation=consolidation),
+                        fact,
+                        alias,
+                    )
+                )
+                break
+
+        return candidates
 
     def resolve(
         self,
@@ -181,6 +253,87 @@ class CanonicalFinancialMapper:
                 resolved.append(fact)
 
         return CanonicalFinancialSet(facts=resolved, missing=missing)
+
+
+def _eligible(
+    fact: EDINETCsvFact,
+    *,
+    current_year_only: bool,
+    consolidation: ConsolidationPreference,
+) -> bool:
+    if fact.numeric_value is None:
+        return False
+    if current_year_only and not _is_current_year(fact):
+        return False
+    return _scope_allowed(fact, consolidation)
+
+
+def _select_candidate(
+    candidates: list[Candidate],
+    metric: CanonicalMetric,
+    *,
+    match_type: MappingMatchType,
+) -> CanonicalFinancialFact:
+    candidates.sort(
+        key=lambda item: (
+            -item[0],
+            item[1].element_id,
+            item[1].context_id,
+            item[1].source_file,
+            item[1].row_number,
+        )
+    )
+    best_score = candidates[0][0]
+    best = [item for item in candidates if item[0] == best_score]
+
+    values = {(item[1].numeric_value, item[1].unit) for item in best}
+    if len(values) > 1:
+        locations = ", ".join(
+            f"{fact.source_file}:{fact.row_number}={fact.raw_value}"
+            for _, fact, _ in best
+        )
+        raise CanonicalMappingConflict(
+            f"conflicting {metric.value} facts at equal priority: {locations}"
+        )
+
+    _, fact, alias = best[0]
+    value = fact.numeric_value
+    assert value is not None
+
+    return CanonicalFinancialFact(
+        metric=metric,
+        value=value,
+        unit=fact.unit,
+        accounting_standard=alias.accounting_standard,
+        match_type=match_type,
+        element_id=fact.element_id,
+        item_name=fact.item_name,
+        context_id=fact.context_id,
+        relative_year=fact.relative_year,
+        consolidation=fact.consolidation,
+        period_type=fact.period_type,
+        source_file=fact.source_file,
+        row_number=fact.row_number,
+        semantic_note=alias.semantic_note,
+    )
+
+
+def _local_name(element_id: str) -> str:
+    return element_id.split(":", maxsplit=1)[-1]
+
+
+def _is_company_extension(element_id: str) -> bool:
+    prefix = element_id.split(":", maxsplit=1)[0]
+    return "-asr_" in prefix
+
+
+def _infer_accounting_standard(element_id: str) -> AccountingStandard:
+    local_name = _local_name(element_id)
+    if "IFRS" in local_name:
+        return AccountingStandard.IFRS
+    if "USGAAP" in local_name:
+        return AccountingStandard.USGAAP
+    return AccountingStandard.UNKNOWN
 
 
 def _is_current_year(fact: EDINETCsvFact) -> bool:
