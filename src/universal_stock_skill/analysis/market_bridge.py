@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 from universal_stock_skill.analysis.bridge import SnapshotBridgeInputs
 from universal_stock_skill.data.market import MarketSnapshot
