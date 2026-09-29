@@ -10,6 +10,7 @@ from universal_stock_skill.data import (
     DEFAULT_CANONICAL_MAPPER,
     CanonicalMetric,
     EDINETCsvArchive,
+    evaluate_mapping_quality,
 )
 
 TREND_METRICS = [
@@ -26,10 +27,12 @@ def build_inspection_payload(payload: bytes, *, years: int = 5) -> dict[str, Any
     canonical = DEFAULT_CANONICAL_MAPPER.resolve(facts)
     series = DEFAULT_CANONICAL_MAPPER.resolve_series(facts, years=years)
     trends = calculate_canonical_trends(series, TREND_METRICS)
+    quality = evaluate_mapping_quality(canonical)
 
     return {
         "fact_count": len(facts),
         "current": canonical.model_dump(mode="json"),
+        "mapping_quality": quality.model_dump(mode="json"),
         "series": series.model_dump(mode="json"),
         "trends": trends.model_dump(mode="json"),
     }
