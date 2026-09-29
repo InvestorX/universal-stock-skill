@@ -70,3 +70,15 @@ await source.aclose()
 ~~~
 
 Agent Skill本体へJ-Quants API keyを埋め込みません。
+
+
+## 診断CLI
+
+JQUANTS_API_KEYを設定した状態で:
+
+~~~bash
+python scripts/inspect_jquants_market.py 7203 \
+  --as-of 2026-09-29T16:00:00+09:00
+~~~
+
+Point-in-Time条件で選択されたMarketSnapshotをJSON表示します。
