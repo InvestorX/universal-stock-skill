@@ -95,3 +95,29 @@ Extension Fallback時は有報内の当期Fact全体から会計基準を判定�
 4. 当期情報自体がなければunknown
 
 標準Taxonomyの完全一致Mappingでは、Rule側で明示した会計基準をそのまま保持します。
+
+
+## 時系列Series
+
+EDINETの有価証券報告書CSVには、当期だけでなく前期以前の再掲値が含まれることがあります。
+
+Mapperではcontextをyear offsetへ正規化します。
+
+| EDINET context | year_offset |
+|---|---:|
+| CurrentYear... | 0 |
+| Prior1Year... | 1 |
+| Prior2Year... | 2 |
+| PriorNYear... | N |
+
+`resolve_series(..., years=5)` で、LLMに期間合わせをさせず `CanonicalFinancialSeries` を生成できます。
+
+このSeriesからPythonで次を計算します。
+
+- 前年比
+- 利用可能な最古の正の基準値からCAGR
+- 汎用的な2時点平均
+
+基準値が0以下の場合は、赤字→黒字などに誤解を招く成長率を出さず `None` とします。
+
+2時点平均は汎用関数として提供しますが、`net_assets` をそのままROE用の自己資本へ自動代入はしません。JP GAAPの株主資本とIFRSの親会社所有者帰属持分は厳密には同一概念ではないためです。
