@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Protocol
 
-from universal_stock_skill.analysis import FinancialSnapshot
+from universal_stock_skill.analysis.models import FinancialSnapshot
 from universal_stock_skill.evidence import SourceRecord
 
 
