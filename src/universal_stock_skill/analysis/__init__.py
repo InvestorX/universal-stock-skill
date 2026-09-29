@@ -10,6 +10,7 @@ from .bridge import (
     build_financial_snapshot,
     evaluate_snapshot_readiness,
 )
+from .context import AnalysisContext, build_analysis_context
 from .derivations import (
     DerivationMethod,
     DerivedFinancialInputs,
@@ -19,6 +20,8 @@ from .derivations import (
     derive_nopat,
     normalize_ratio,
 )
+from .grounding import ReportGroundingError, ground_report
+from .llm_workflow import StockAnalysisWorkflow
 from .market_bridge import (
     MissingMarketCapitalization,
     SnapshotDerivedInputs,
@@ -31,6 +34,12 @@ from .orchestrator import (
     StockAnalysisDataBundle,
     StockAnalysisOrchestrator,
 )
+from .report import (
+    ClaimKind,
+    EvidenceRef,
+    GroundedClaim,
+    StockAnalysisReport,
+)
 from .trends import (
     CanonicalMetricTrend,
     CanonicalTrendSet,
@@ -42,24 +51,32 @@ from .workflow import calculate_stock_metrics
 
 __all__ = [
     "DEFAULT_TREND_METRICS",
+    "AnalysisContext",
     "CanonicalMetricTrend",
     "CanonicalTrendSet",
+    "ClaimKind",
     "DerivationMethod",
     "DerivedFinancialInputs",
+    "EvidenceRef",
     "FilingSelectionSummary",
     "FinancialSnapshot",
     "FinancialSnapshotAssemblyError",
     "FinancialSnapshotAssemblyResult",
+    "GroundedClaim",
     "MissingCanonicalMetric",
     "MissingMarketCapitalization",
+    "ReportGroundingError",
     "SnapshotBridgeInputs",
     "SnapshotCanonicalReadiness",
     "SnapshotDerivedInputs",
     "StockAnalysisDataBundle",
     "StockAnalysisOrchestrator",
+    "StockAnalysisReport",
+    "StockAnalysisWorkflow",
     "StockMetrics",
     "assemble_financial_snapshot",
     "average_two_periods",
+    "build_analysis_context",
     "build_financial_snapshot",
     "build_snapshot_bridge_inputs",
     "calculate_canonical_trend",
@@ -70,5 +87,6 @@ __all__ = [
     "derive_financial_inputs",
     "derive_nopat",
     "evaluate_snapshot_readiness",
+    "ground_report",
     "normalize_ratio",
 ]
