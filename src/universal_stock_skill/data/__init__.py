@@ -37,6 +37,7 @@ from .filings import (
     normalize_sec_code,
 )
 from .market import MarketDataSource, MarketSnapshot
+from .market_selection import MarketSnapshotSelectionError, select_market_snapshot
 
 __all__ = [
     "ANNUAL_REPORT_CORRECTION_DOC_TYPE",
@@ -74,9 +75,11 @@ __all__ = [
     "MappingMatchType",
     "MarketDataSource",
     "MarketSnapshot",
+    "MarketSnapshotSelectionError",
     "PriceDataSource",
     "ResolvedAnnualFiling",
     "evaluate_mapping_quality",
     "infer_accounting_standard",
     "normalize_sec_code",
+    "select_market_snapshot",
 ]
