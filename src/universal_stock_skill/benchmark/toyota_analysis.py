@@ -11,11 +11,11 @@ from universal_stock_skill.analysis.assembly import (
 )
 from universal_stock_skill.analysis.context import AnalysisContext
 from universal_stock_skill.analysis.models import StockMetrics
+from universal_stock_skill.analysis.report import EvidenceRef
 from universal_stock_skill.analysis.trends import (
     CanonicalTrendSet,
     calculate_canonical_trends,
 )
-from universal_stock_skill.analysis.report import EvidenceRef
 from universal_stock_skill.analysis.workflow import calculate_stock_metrics
 from universal_stock_skill.benchmark.toyota import (
     TOYOTA_FY2026_SUMMARY_URL,
