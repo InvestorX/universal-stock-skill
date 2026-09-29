@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from collections.abc import Iterable
 from dataclasses import dataclass
 from decimal import Decimal
@@ -104,6 +105,22 @@ class CanonicalFinancialSet(BaseModel):
         return next((fact for fact in self.facts if fact.metric == metric), None)
 
 
+class CanonicalFinancialPeriod(BaseModel):
+    year_offset: int
+    financials: CanonicalFinancialSet
+
+
+class CanonicalFinancialSeries(BaseModel):
+    periods: list[CanonicalFinancialPeriod]
+
+    def get(self, year_offset: int) -> CanonicalFinancialSet | None:
+        period = next(
+            (item for item in self.periods if item.year_offset == year_offset),
+            None,
+        )
+        return period.financials if period is not None else None
+
+
 class CanonicalMappingConflict(ValueError):
     pass
 
@@ -126,6 +143,7 @@ class CanonicalFinancialMapper:
         metric: CanonicalMetric,
         *,
         current_year_only: bool = True,
+        year_offset: int | None = None,
         consolidation: ConsolidationPreference = ConsolidationPreference.AUTO,
     ) -> CanonicalFinancialFact | None:
         fact_list = tuple(facts)
@@ -133,6 +151,7 @@ class CanonicalFinancialMapper:
             fact_list,
             metric,
             current_year_only=current_year_only,
+            year_offset=year_offset,
             consolidation=consolidation,
         )
         if exact:
@@ -146,6 +165,7 @@ class CanonicalFinancialMapper:
             fact_list,
             metric,
             current_year_only=current_year_only,
+            year_offset=year_offset,
             consolidation=consolidation,
         )
         if fallback:
@@ -163,6 +183,7 @@ class CanonicalFinancialMapper:
         metric: CanonicalMetric,
         *,
         current_year_only: bool,
+        year_offset: int | None,
         consolidation: ConsolidationPreference,
     ) -> list[Candidate]:
         aliases = self._mappings.get(metric, ())
@@ -174,6 +195,7 @@ class CanonicalFinancialMapper:
             if alias is None or not _eligible(
                 fact,
                 current_year_only=current_year_only,
+                year_offset=year_offset,
                 consolidation=consolidation,
             ):
                 continue
@@ -193,6 +215,7 @@ class CanonicalFinancialMapper:
         metric: CanonicalMetric,
         *,
         current_year_only: bool,
+        year_offset: int | None,
         consolidation: ConsolidationPreference,
     ) -> list[Candidate]:
         rules = self._extension_rules.get(metric, ())
@@ -203,6 +226,7 @@ class CanonicalFinancialMapper:
             if not _eligible(
                 fact,
                 current_year_only=current_year_only,
+                year_offset=year_offset,
                 consolidation=consolidation,
             ):
                 continue
@@ -210,12 +234,12 @@ class CanonicalFinancialMapper:
             for rule in rules:
                 if not rule.matches(fact):
                     continue
+                direct_standard = _infer_accounting_standard(fact.element_id)
                 alias = ElementAlias(
                     element_id=fact.element_id,
                     accounting_standard=(
-                        _infer_accounting_standard(fact.element_id)
-                        if _infer_accounting_standard(fact.element_id)
-                        != AccountingStandard.UNKNOWN
+                        direct_standard
+                        if direct_standard != AccountingStandard.UNKNOWN
                         else inferred_standard
                     ),
                     priority=rule.priority,
@@ -239,6 +263,7 @@ class CanonicalFinancialMapper:
         metrics: Iterable[CanonicalMetric] | None = None,
         *,
         current_year_only: bool = True,
+        year_offset: int | None = None,
         consolidation: ConsolidationPreference = ConsolidationPreference.AUTO,
     ) -> CanonicalFinancialSet:
         fact_list = tuple(facts)
@@ -251,6 +276,7 @@ class CanonicalFinancialMapper:
                 fact_list,
                 metric,
                 current_year_only=current_year_only,
+                year_offset=year_offset,
                 consolidation=consolidation,
             )
             if fact is None:
@@ -260,17 +286,55 @@ class CanonicalFinancialMapper:
 
         return CanonicalFinancialSet(facts=resolved, missing=missing)
 
+    def resolve_series(
+        self,
+        facts: Iterable[EDINETCsvFact],
+        metrics: Iterable[CanonicalMetric] | None = None,
+        *,
+        years: int = 5,
+        consolidation: ConsolidationPreference = ConsolidationPreference.AUTO,
+    ) -> CanonicalFinancialSeries:
+        if years < 1:
+            raise ValueError("years must be >= 1")
+
+        fact_list = tuple(facts)
+        periods: list[CanonicalFinancialPeriod] = []
+
+        for year_offset in range(years):
+            financials = self.resolve(
+                fact_list,
+                metrics,
+                current_year_only=False,
+                year_offset=year_offset,
+                consolidation=consolidation,
+            )
+            if financials.facts:
+                periods.append(
+                    CanonicalFinancialPeriod(
+                        year_offset=year_offset,
+                        financials=financials,
+                    )
+                )
+
+        return CanonicalFinancialSeries(periods=periods)
+
 
 def _eligible(
     fact: EDINETCsvFact,
     *,
     current_year_only: bool,
+    year_offset: int | None,
     consolidation: ConsolidationPreference,
 ) -> bool:
     if fact.numeric_value is None:
         return False
-    if current_year_only and not _is_current_year(fact):
+
+    if year_offset is not None:
+        if _fact_year_offset(fact) != year_offset:
+            return False
+    elif current_year_only and not _is_current_year(fact):
         return False
+
     return _scope_allowed(fact, consolidation)
 
 
@@ -357,10 +421,28 @@ def _infer_accounting_standard(element_id: str) -> AccountingStandard:
     return AccountingStandard.UNKNOWN
 
 
-def _is_current_year(fact: EDINETCsvFact) -> bool:
-    relative = fact.relative_year.strip()
+def _fact_year_offset(fact: EDINETCsvFact) -> int | None:
     context = fact.context_id
-    return relative == "当期" or context.startswith("CurrentYear")
+
+    if context.startswith("CurrentYear"):
+        return 0
+
+    match = re.match(r"Prior(\d+)Year", context)
+    if match:
+        return int(match.group(1))
+
+    relative = fact.relative_year.strip()
+    if relative == "当期":
+        return 0
+    if relative == "前期":
+        return 1
+    if relative in {"前々期", "2期前"}:
+        return 2
+    return None
+
+
+def _is_current_year(fact: EDINETCsvFact) -> bool:
+    return _fact_year_offset(fact) == 0
 
 
 def _is_non_consolidated(fact: EDINETCsvFact) -> bool:
