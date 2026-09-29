@@ -13,6 +13,8 @@ flowchart LR
     P --> F[EDINETCsvFact]
     F --> C[CanonicalFinancialMapper]
     C --> CF[CanonicalFinancialSet]
+    C --> TS[CanonicalFinancialSeries]
+    TS --> TR[前年比 / CAGR]
     CF --> B[FinancialSnapshot Bridge]
     B --> FS[FinancialSnapshot]
     FS --> M[決定論的財務指標]
@@ -83,3 +85,10 @@ python scripts/inspect_edinet_csv.py path/to/document.zip
 ~~~
 
 実ファイルを固定して再現性あるMapping検証を行う場合はこちらを推奨します。
+
+
+## 時系列Pipeline
+
+`EDINETCanonicalPipeline.load_document_series(document, years=5)` は有報ZIPを1回だけ取得・parseし、CurrentYear / PriorNYearをCanonicalな時系列へ変換します。
+
+そのまま決定論的Trend計算へ渡すため、LLMに生CSV行から年度を推定させたり、成長率を暗算させたりしません。
