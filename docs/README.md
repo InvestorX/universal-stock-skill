@@ -17,6 +17,7 @@
 - [Qualitative evidence and peer comparison](evidence-peer-layer.md)
 - [Benchmark specification](benchmark-spec.md)
 - [Toyota 7203 reference case](toyota-reference-case.md)
+- [Toyota 7203 grounded report regression](toyota-grounded-report.md)
 - [RRSI design](rrsi-design.md)
 
 Every document has a Japanese counterpart.
