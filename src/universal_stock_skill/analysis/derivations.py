@@ -144,9 +144,11 @@ def normalize_ratio(fact: CanonicalFinancialFact) -> Decimal | None:
         return value
 
     unit = fact.unit.strip().lower()
-    if any(token in unit for token in ("%", "％", "percent", "percentage")):
-        if value <= 100:
-            return value / Decimal(100)
+    if (
+        value <= 100
+        and any(token in unit for token in ("%", "％", "percent", "percentage"))
+    ):
+        return value / Decimal(100)
 
     return None
 
