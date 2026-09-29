@@ -6,8 +6,8 @@ import pytest
 from universal_stock_skill.analysis.bridge import (
     MissingCanonicalMetric,
     SnapshotBridgeInputs,
-    evaluate_snapshot_readiness,
     build_financial_snapshot,
+    evaluate_snapshot_readiness,
 )
 from universal_stock_skill.data.canonical import (
     AccountingStandard,
