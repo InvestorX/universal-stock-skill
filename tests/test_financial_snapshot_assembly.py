@@ -125,3 +125,24 @@ def test_assembly_requires_safe_average_equity_derivation() -> None:
         match="average_equity",
     ):
         assemble_financial_snapshot(current, series, market)
+
+
+@pytest.mark.parametrize("eps", [0.0, -10.0])
+def test_nonpositive_eps_marks_per_unavailable(eps: float) -> None:
+    from universal_stock_skill.analysis.models import FinancialSnapshot
+
+    snapshot = FinancialSnapshot(
+        symbol="7203",
+        as_of=datetime(2026, 9, 29, 6, 30, tzinfo=UTC),
+        price=120,
+        revenue=1000,
+        operating_income=120,
+        net_income=-70,
+        eps=eps,
+        bps=100,
+        average_equity=700,
+        operating_cash_flow=150,
+        capital_expenditure=50,
+        market_cap=12_000,
+    )
+    assert calculate_stock_metrics(snapshot).per is None
