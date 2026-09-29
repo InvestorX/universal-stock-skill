@@ -202,7 +202,7 @@ EXTENSION_EDINET_MAPPINGS: dict[CanonicalMetric, tuple[ExtensionRule, ...]] = {
                 "GrossProfit",
                 "Equity",
                 "Earnings",
-                "Business",
+                "BusinessProfit",
                 "Segment",
                 "Margin",
                 "Ratio",
