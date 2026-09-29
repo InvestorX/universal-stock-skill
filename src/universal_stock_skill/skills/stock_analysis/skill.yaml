@@ -1,0 +1,23 @@
+name: stock_analysis
+version: 0.1.0
+description: Point-in-time, evidence-grounded stock analysis
+capabilities:
+  - tool_calling
+  - structured_output
+  - evidence_grounding
+requirements:
+  point_in_time: true
+  deterministic_calculations: true
+workflow:
+  - identity
+  - financials
+  - profitability
+  - balance_sheet
+  - cash_flow
+  - valuation
+  - peers
+  - drivers
+  - risks
+  - scenarios
+  - report
+  - consistency_check
