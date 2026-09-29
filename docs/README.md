@@ -9,6 +9,7 @@
 - [Data sources](data-sources.md)
 - [EDINET canonical financial mapping](edinet-canonical-mapping.md)
 - [EDINET analysis pipeline](edinet-pipeline.md)
+- [Market data model](market-data.md)
 - [Benchmark specification](benchmark-spec.md)
 - [RRSI design](rrsi-design.md)
 

@@ -5,6 +5,11 @@ from .bridge import (
     build_financial_snapshot,
     evaluate_snapshot_readiness,
 )
+from .market_bridge import (
+    MissingMarketCapitalization,
+    SnapshotDerivedInputs,
+    build_snapshot_bridge_inputs,
+)
 from .models import FinancialSnapshot, StockMetrics
 from .trends import (
     CanonicalMetricTrend,
@@ -20,11 +25,14 @@ __all__ = [
     "CanonicalTrendSet",
     "FinancialSnapshot",
     "MissingCanonicalMetric",
+    "MissingMarketCapitalization",
     "SnapshotBridgeInputs",
     "SnapshotCanonicalReadiness",
+    "SnapshotDerivedInputs",
     "StockMetrics",
     "average_two_periods",
     "build_financial_snapshot",
+    "build_snapshot_bridge_inputs",
     "calculate_canonical_trend",
     "calculate_canonical_trends",
     "calculate_stock_metrics",
