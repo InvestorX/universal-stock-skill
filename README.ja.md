@@ -145,7 +145,7 @@ pytest
 - [x] Tool Registry
 - [x] 財務計算モジュール
 - [x] Benchmark Caseモデル
-- [ ] Structured Output validation
+- [x] Structured Output validation
 - [ ] Stock Analysis Workflow
 - [ ] 最初のEnd-to-End分析
 
