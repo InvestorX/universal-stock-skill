@@ -147,10 +147,15 @@ EDINET API v2向けのクライアント基盤を実装しています。
 - `docID` を指定した書類データの取得
 - EDINET提出日時をEvidenceへ変換
 - API通信をMock化した自動テスト
+- XBRL変換CSV ZIPの展開
+- 公式9列フォーマット（UTF-16LE / タブ区切り）のFact化
+- 数値FactのDecimal変換
+- 「-」を明示的な0として正規化
+- 要素ID / コンテキストID等による決定論的なFact検索
 
 まだ未実装:
 
-- XBRL / CSVから財務数値を正規化して抽出
+- EDINET Factから売上高・営業利益等の共通指標へのCanonical Mapping
 - 証券コードから必要書類を自動選択
 - 訂正報告書・複数提出書類の優先順位処理
 - FinancialSnapshotへの自動変換
@@ -193,12 +198,14 @@ python scripts/run_analysis.py 7203 --demo
 - [x] Structured Output validation
 - [x] Stock Analysis Workflow基盤
 - [x] Evidence / Point-in-Time Guard
+- [x] Text-only LLM向けStructured Output fallback
 - [ ] Provider-neutral Tool Calling fallback
 - [ ] 実データを使ったEnd-to-End分析
 
 ### Phase 3 — Market Data
 - [x] EDINET APIクライアント基盤
-- [ ] EDINET XBRL / CSV財務データ抽出
+- [x] EDINET XBRL変換CSV Fact Parser
+- [ ] EDINET Fact -> Canonical財務指標Mapping
 - [ ] TDnet
 - [ ] 株価データ
 - [ ] IR資料
