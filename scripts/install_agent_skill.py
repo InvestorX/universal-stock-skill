@@ -4,7 +4,6 @@ import argparse
 import shutil
 from pathlib import Path
 
-
 AGENTS = ("codex", "claude", "antigravity", "hermes")
 
 
@@ -29,15 +28,9 @@ def destination(agent: str, scope: str, project_root: Path) -> Path:
     if agent == "claude":
         return home / ".claude" / "skills" / "stock-analysis"
     if agent == "antigravity":
-        return (
-            home
-            / ".gemini"
-            / "antigravity-cli"
-            / "skills"
-            / "stock-analysis"
-        )
+        return home / ".gemini" / "antigravity-cli" / "skills" / "stock-analysis"
     if agent == "hermes":
-        return home / ".hermes" / "skills" / "finance" / "stock-analysis"
+        return home / ".hermes" / "skills" / "stock-analysis"
 
     raise ValueError(f"unsupported agent: {agent}")
 
