@@ -103,3 +103,21 @@ bundle = await pipeline.load_document_bundle(document, years=5)
 ~~~
 
 EDINET書類ZIPの取得・parseは1回だけ行い、`current` と `series` を同時に返します。不要なEDINET API再取得を防げます。
+
+
+## FinancialSnapshot Readiness Preflight
+
+`FinancialSnapshot` を作る前に `evaluate_snapshot_readiness(current)` で有報側の必要項目を確認できます。
+
+必須Canonical指標:
+
+- revenue
+- operating income
+- net income
+- EPS
+- BPS
+- operating cash flow
+
+結果には、6項目が揃ったか、欠損は何か、必須項目のうちExtension Fallback由来は何かを含めます。
+
+これは有報側だけのPreflightです。株価、時価総額、平均自己資本、CapExは引き続き別の決定論的Data Sourceまたは派生計算から供給します。
