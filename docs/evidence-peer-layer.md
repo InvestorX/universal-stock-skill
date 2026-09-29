@@ -122,6 +122,33 @@ When supplied:
 
 If news is absent, the context still says news evidence is unavailable. Supplying peer data does not imply that news, company IR, or catalyst evidence exists.
 
+## Generic subject + peer orchestration
+
+Production callers can now build the subject and all peers from one shared point-in-time cutoff:
+
+~~~python
+peer = PeerAnalysisOrchestrator(stock_orchestrator)
+result = await peer.analyze(
+    "7203",
+    peer_symbols=["7267", "7201"],
+    as_of=as_of,
+    years=5,
+)
+context = result.build_context()
+~~~
+
+The orchestrator normalizes symbols, rejects duplicates before provider I/O, runs every company with the exact same `as_of`, preserves peer order, and produces a deterministic `PeerComparisonSet`.
+
+CLI:
+
+~~~bash
+python scripts/analyze_peers.py 7203 \
+  --peers 7267 7201 \
+  --as-of 2026-09-29T15:30:00+09:00
+~~~
+
+PER is now unavailable when EPS is zero or negative in the production metric pipeline, preventing a negative multiple from being interpreted as a conventional low PER.
+
 ## Provider strategy
 
 The core runtime intentionally does not require one specific news API.
