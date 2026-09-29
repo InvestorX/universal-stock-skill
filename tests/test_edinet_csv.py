@@ -12,7 +12,6 @@ from universal_stock_skill.data.edinet_csv import (
 )
 from universal_stock_skill.data.facts import FactQuery, FactSet
 
-
 HEADERS = [
     "要素ID",
     "項目名",
@@ -58,7 +57,7 @@ def test_parse_official_nine_column_format() -> None:
 
     assert len(facts) == 1
     assert facts[0].element_id == "jppfs_cor:NetSales"
-    assert facts[0].numeric_value == Decimal("123456")
+    assert facts[0].numeric_value == Decimal(123456)
     assert facts[0].source_file.endswith("jpcrp-test.csv")
     assert facts[0].row_number == 2
 
@@ -112,7 +111,7 @@ def test_fact_set_requires_unambiguous_numeric_match() -> None:
             context_ids=frozenset({"CurrentYearDuration"}),
         )
     )
-    assert value == Decimal("100")
+    assert value == Decimal(100)
 
     with pytest.raises(LookupError):
         fact_set.unique_numeric(
