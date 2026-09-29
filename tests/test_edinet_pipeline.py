@@ -10,6 +10,7 @@ import pytest
 from universal_stock_skill.analysis import (
     SnapshotBridgeInputs,
     build_financial_snapshot,
+    calculate_canonical_trend,
     calculate_stock_metrics,
 )
 from universal_stock_skill.data import (
@@ -201,3 +202,36 @@ async def test_pipeline_can_build_historical_canonical_series() -> None:
     assert prior is not None
     assert current.get(CanonicalMetric.REVENUE).value == 48_000_000_000_000
     assert prior.get(CanonicalMetric.REVENUE).value == 44_000_000_000_000
+
+
+@pytest.mark.asyncio
+async def test_historical_pipeline_feeds_deterministic_growth_analysis() -> None:
+    client = EDINETClient(
+        EDINETConfig(api_key="test-key"),
+        transport=transport(),
+    )
+    document = EDINETDocument(
+        docID="S100DEMO",
+        secCode="72030",
+        filerName="Demo Corporation",
+        docTypeCode="120",
+        submitDateTime="2026-06-20 15:00",
+        periodEnd="2026-03-31",
+        csvFlag="1",
+    )
+
+    series = await EDINETCanonicalPipeline(client).load_document_series(
+        document,
+        years=2,
+    )
+    trend = calculate_canonical_trend(
+        series,
+        CanonicalMetric.REVENUE,
+    )
+
+    assert trend is not None
+    assert trend.current_value == 48_000_000_000_000
+    assert trend.prior_value == 44_000_000_000_000
+    assert trend.year_over_year == pytest.approx((48 / 44) - 1)
+    assert trend.cagr_value == pytest.approx((48 / 44) - 1)
+    assert trend.cagr_years == 1
