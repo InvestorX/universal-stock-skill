@@ -7,7 +7,10 @@ from typing import Any
 from pydantic import BaseModel, Field, model_validator
 
 from universal_stock_skill.analysis.orchestrator import StockAnalysisDataBundle
-from universal_stock_skill.analysis.peers import build_peer_comparison
+from universal_stock_skill.analysis.peers import (
+    PeerComparisonSet,
+    build_peer_comparison,
+)
 from universal_stock_skill.analysis.report import EvidenceRef
 from universal_stock_skill.evidence.collection import EvidenceItem
 
@@ -233,3 +236,58 @@ def _build_limitations(
         limitations.append("Timely-disclosure / catalyst evidence is unavailable.")
 
     return limitations
+
+
+
+def add_peer_comparison_to_context(
+    context: AnalysisContext,
+    comparison: PeerComparisonSet,
+    *,
+    evidence_items: Sequence[EvidenceItem] = (),
+) -> AnalysisContext:
+    if comparison.subject_symbol.strip().upper() != context.symbol.strip().upper():
+        raise ValueError("peer comparison subject does not match analysis context")
+    if comparison.requested_as_of != context.requested_as_of:
+        raise ValueError("peer comparison requested_as_of must match analysis context")
+
+    evidence = list(context.evidence)
+    for item in evidence_items:
+        evidence.append(
+            EvidenceRef(
+                source_id=item.record.source_id,
+                title=item.record.title,
+                url=item.record.url,
+                published_at=item.record.published_at,
+            )
+        )
+
+    authoritative_facts = dict(context.authoritative_facts)
+    authoritative_facts["peer_comparison"] = comparison.model_dump(mode="json")
+    if evidence_items:
+        authoritative_facts["peer_evidence"] = [
+            item.model_dump(mode="json")
+            for item in evidence_items
+        ]
+
+    limitations = [
+        item
+        for item in context.limitations
+        if item != "Deterministic peer comparison data is unavailable."
+    ]
+    limitations.extend(
+        note
+        for note in comparison.notes
+        if note not in limitations
+    )
+
+    return AnalysisContext(
+        symbol=context.symbol,
+        requested_as_of=context.requested_as_of,
+        evidence=evidence,
+        authoritative_facts=authoritative_facts,
+        deterministic_metrics=dict(context.deterministic_metrics),
+        peer_metrics=comparison.metric_values(),
+        trends=dict(context.trends),
+        derivations=dict(context.derivations),
+        limitations=limitations,
+    )

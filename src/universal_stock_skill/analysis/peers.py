@@ -39,6 +39,7 @@ class PeerComparisonSet(BaseModel):
     subject_symbol: str = Field(min_length=1)
     requested_as_of: datetime
     rows: list[PeerMetricRow]
+    notes: list[str] = Field(default_factory=list)
 
     def metric_values(self) -> dict[str, float | None]:
         result: dict[str, float | None] = {}

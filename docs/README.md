@@ -18,6 +18,7 @@
 - [Benchmark specification](benchmark-spec.md)
 - [Toyota 7203 reference case](toyota-reference-case.md)
 - [Toyota 7203 grounded report regression](toyota-grounded-report.md)
+- [Toyota automotive peer regression](toyota-automotive-peers.md)
 - [RRSI design](rrsi-design.md)
 
 Every document has a Japanese counterpart.
