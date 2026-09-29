@@ -31,7 +31,7 @@ class FinancialSnapshot(BaseModel):
 
 class StockMetrics(BaseModel):
     operating_margin: float
-    per: float
+    per: float | None
     pbr: float
     roe: float
     free_cash_flow: float
