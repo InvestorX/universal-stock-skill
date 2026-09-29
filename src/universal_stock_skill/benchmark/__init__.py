@@ -26,6 +26,6 @@ __all__ = [
     "ratio",
     "toyota_7203_reference_case",
     "toyota_reference_analysis_context",
-    "toyota_reference_canonical_financials"
+    "toyota_reference_canonical_financials",
     "toyota_reference_market_snapshot",
 ]
