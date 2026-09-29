@@ -1,8 +1,10 @@
 # universal-stock-skill
 
+**English** | [日本語](README.ja.md)
+
 A model-independent skill runtime for evidence-grounded stock analysis, with an RRSI-inspired evolution loop.
 
-> Status: early architecture / runtime scaffold.
+> Status: early architecture / runtime implementation.
 
 ## What this project is
 
@@ -27,22 +29,7 @@ Universal Skill Runtime
  financials / prices / filings / news
 ```
 
-RRSI-style evolution sits outside the production runtime:
-
-```text
-current skill
-    |
-    v
-analyze failures -> propose candidates -> benchmark -> critic
-                                              |
-                                              v
-                                    accepted candidate
-                                              |
-                                              v
-                                          Git / PR
-                                              |
-                                         human review
-```
+LLMs handle interpretation, hypothesis generation and reporting. Calculations, time constraints and deterministic transformations stay in Python.
 
 ## Design principles
 
@@ -57,33 +44,16 @@ analyze failures -> propose candidates -> benchmark -> critic
 
 ```text
 docs/
-  architecture.md
-  skill-spec.md
-  benchmark-spec.md
-  rrsi-design.md
-
 src/universal_stock_skill/
-  llm/                 # vendor-neutral model contract
-  runtime/             # skill execution runtime
+  llm/
+  runtime/
+  finance/
+  benchmark/
   skills/stock_analysis/
-  evolution/           # evaluation / fitness / future RRSI loop
-
+  evolution/
 scripts/
 tests/
 ```
-
-## Current milestone
-
-Version `0.1.x` focuses on the foundation:
-
-1. vendor-neutral LLM interface
-2. stock-analysis skill contract
-3. deterministic tool contract
-4. point-in-time benchmark format
-5. multi-model evaluation
-6. RRSI-inspired candidate workflow
-
-Real financial-data connectors and provider adapters come after these contracts are stable.
 
 ## Development
 
@@ -98,4 +68,4 @@ pip install -e ".[dev]"
 pytest
 ```
 
-See [docs/architecture.md](docs/architecture.md) for the current design.
+See [README.ja.md](README.ja.md) for the Japanese guide and [docs/architecture.md](docs/architecture.md) for the architecture.
