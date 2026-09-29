@@ -36,6 +36,9 @@ def context() -> AnalysisContext:
             "metric:per": 12.0,
             "metric:roe": 0.1,
         },
+        peer_metrics={
+            "peer:6758:per": 15.0,
+        },
         trends={
             "trend:revenue": {
                 "current_value": "1100",
@@ -173,3 +176,18 @@ def test_duplicate_claim_ids_are_rejected() -> None:
 
     with pytest.raises(ReportGroundingError, match="claim_id values must be unique"):
         ground_report(report, context())
+
+
+def test_peer_metric_id_is_valid_grounding_reference() -> None:
+    report = report_with_claims(
+        GroundedClaim(
+            claim_id="peer-per",
+            text="The peer PER is 15x.",
+            kind=ClaimKind.CALCULATION,
+            metric_ids=["peer:6758:per"],
+        )
+    )
+
+    grounded = ground_report(report, context())
+
+    assert grounded.claims[0].metric_ids == ["peer:6758:per"]
