@@ -15,7 +15,6 @@ from universal_stock_skill.analysis.workflow import calculate_stock_metrics
 from universal_stock_skill.llm import LLMProvider, LLMRequest, Message
 from universal_stock_skill.runtime import validate_structured_response
 
-
 DEFAULT_ANALYSIS_INSTRUCTION = (
     "Analyze the company using only the supplied point-in-time data."
 )
