@@ -14,7 +14,7 @@ flowchart LR
     C --> A[Stock analysis / metrics]
 ~~~
 
-The first implementation is intentionally conservative: it maps known standard taxonomy element IDs and reports missing values rather than inventing a match.
+The mapper first uses known standard taxonomy element IDs. If an exact standard mapping is unavailable, a narrow company-extension fallback is allowed for revenue and operating income only.
 
 ## Canonical core
 
@@ -68,8 +68,15 @@ revenue is not always economically identical across industries.
 
 For example, some financial institutions report ordinary income where ordinary industrial companies report net sales. Such aliases carry a semantic note so downstream analysis can avoid naive peer comparisons.
 
-## Current limitation
+## Extension fallback
 
-This first layer covers standard EDINET taxonomy IDs. Company-specific extension taxonomy elements are not guessed yet.
+Fallback matching is intentionally narrow.
 
-A later fallback layer will detect curated extension suffixes and still require deterministic exclusion rules for segment sales, costs, and other false positives.
+- runs only after exact standard mapping fails
+- accepts company-extension namespaces used by annual securities reports
+- currently targets revenue and operating income
+- requires SummaryOfBusinessResults or KeyFinancialData-style local names
+- excludes Intersegment, Segment, Cost, Expense, PerShare, Ratio, and similar false-positive tokens
+- records match_type=extension_fallback and keeps the original element ID
+
+The next step is to validate these rules against real filings and then connect CanonicalFinancialSet to FinancialSnapshot.
