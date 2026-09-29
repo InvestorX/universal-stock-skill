@@ -34,6 +34,12 @@ from .orchestrator import (
     StockAnalysisDataBundle,
     StockAnalysisOrchestrator,
 )
+from .peers import (
+    PeerComparisonError,
+    PeerComparisonSet,
+    PeerMetricRow,
+    build_peer_comparison,
+)
 from .report import (
     ClaimKind,
     EvidenceRef,
@@ -65,6 +71,9 @@ __all__ = [
     "GroundedClaim",
     "MissingCanonicalMetric",
     "MissingMarketCapitalization",
+    "PeerComparisonError",
+    "PeerComparisonSet",
+    "PeerMetricRow",
     "ReportGroundingError",
     "SnapshotBridgeInputs",
     "SnapshotCanonicalReadiness",
@@ -78,6 +87,7 @@ __all__ = [
     "average_two_periods",
     "build_analysis_context",
     "build_financial_snapshot",
+    "build_peer_comparison",
     "build_snapshot_bridge_inputs",
     "calculate_canonical_trend",
     "calculate_canonical_trends",
