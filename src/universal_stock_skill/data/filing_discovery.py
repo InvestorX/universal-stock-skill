@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 
 from universal_stock_skill.data.edinet import EDINETClient, EDINETDocument
@@ -17,7 +17,7 @@ from universal_stock_skill.data.filings import (
 @dataclass
 class AnnualFilingDiscovery:
     client: EDINETClient
-    resolver: AnnualFilingResolver = AnnualFilingResolver()
+    resolver: AnnualFilingResolver = field(default_factory=AnnualFilingResolver)
     lookback_days: int = 550
 
     async def discover(
