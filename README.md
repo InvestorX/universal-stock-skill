@@ -4,7 +4,7 @@
 
 A portable Agent Skill and Python runtime for point-in-time, evidence-grounded stock analysis, with an RRSI-inspired improvement loop.
 
-> Status: runtime foundation, EDINET API/CSV ingestion, canonical financial mapping, five-year canonical series/trends, annual-filing resolution, provider-neutral market snapshots, a J-Quants V2 market adapter with point-in-time selection, deterministic average-equity/CapEx/NOPAT derivation, automatic FinancialSnapshot assembly, and a security-code-to-analysis end-to-end orchestrator, and portable Agent Skill packaging are implemented.
+> Status: runtime foundation, EDINET API/CSV ingestion, canonical financial mapping, five-year canonical series/trends, annual-filing resolution, provider-neutral market snapshots, a J-Quants V2 market adapter with point-in-time selection, deterministic average-equity/CapEx/NOPAT derivation, automatic FinancialSnapshot assembly, a security-code-to-analysis end-to-end orchestrator, a grounded structured analysis-report layer, and portable Agent Skill packaging are implemented.
 
 ## Overview
 

@@ -4,7 +4,7 @@
 
 **時点整合性とEvidenceを重視した銘柄分析を、特定LLMに縛られず再利用するためのAgent Skill + Python Runtime** です。RRSIの考え方を取り入れた改善基盤も段階的に構築します。
 
-> 現在: Runtime基盤、EDINET API / CSV Fact取込、Canonical財務Mapping・最大5年時系列、Point-in-Time対応MarketSnapshot、J-Quants V2 Market Adapter、平均自己資本・CapEx・NOPATの決定論的導出とFinancialSnapshot自動Assembly、証券コード＋as_ofから分析JSONまでのEnd-to-End Orchestrator、Portable Agent Skill化まで実装済みです。
+> 現在: Runtime基盤、EDINET API / CSV Fact取込、Canonical財務Mapping・最大5年時系列、Point-in-Time対応MarketSnapshot、J-Quants V2 Market Adapter、平均自己資本・CapEx・NOPATの決定論的導出とFinancialSnapshot自動Assembly、証券コード＋as_ofから分析JSONまでのEnd-to-End Orchestrator、Evidence ID / Metric IDで検証するGrounded Analysis Report Layer、Portable Agent Skill化まで実装済みです。
 
 ## 全体像
 
