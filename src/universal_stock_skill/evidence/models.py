@@ -5,7 +5,6 @@ from typing import Literal
 
 from pydantic import BaseModel, Field, field_validator
 
-
 SourceType = Literal[
     "filing",
     "timely_disclosure",
