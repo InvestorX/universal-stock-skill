@@ -7,7 +7,6 @@ from typing import Any
 
 from universal_stock_skill.llm import ToolDefinition
 
-
 ToolHandler = Callable[[dict[str, Any]], dict[str, Any] | Awaitable[dict[str, Any]]]
 
 
