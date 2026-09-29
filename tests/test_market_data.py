@@ -42,7 +42,7 @@ def test_market_snapshot_requires_timezone() -> None:
     with pytest.raises(ValueError):
         MarketSnapshot(
             symbol="7203",
-            observed_at=datetime(2026, 9, 29, 6, 0),
+            observed_at=datetime(2026, 9, 29, 6, 0),  # noqa: DTZ001
             price=3000,
             currency="JPY",
             source="fixture",
