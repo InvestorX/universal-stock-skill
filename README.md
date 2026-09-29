@@ -4,7 +4,7 @@
 
 A portable Agent Skill and Python runtime for point-in-time, evidence-grounded stock analysis, with an RRSI-inspired improvement loop.
 
-> Status: runtime foundation, EDINET API/CSV fact ingestion, standard taxonomy canonical financial mapping, and portable Agent Skill packaging are implemented.
+> Status: runtime foundation, EDINET API/CSV ingestion, canonical financial mapping, annual-filing resolution, FinancialSnapshot bridging, and portable Agent Skill packaging are implemented.
 
 ## Overview
 
