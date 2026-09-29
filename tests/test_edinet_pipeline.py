@@ -235,3 +235,40 @@ async def test_historical_pipeline_feeds_deterministic_growth_analysis() -> None
     assert trend.year_over_year == pytest.approx((48 / 44) - 1)
     assert trend.cagr_value == pytest.approx((48 / 44) - 1)
     assert trend.cagr_years == 1
+
+
+@pytest.mark.asyncio
+async def test_bundle_builds_current_and_series_from_one_download() -> None:
+    calls = 0
+    payload = build_csv_zip()
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        nonlocal calls
+        if request.url.path.endswith("/documents/S100DEMO"):
+            calls += 1
+            return httpx.Response(200, content=payload)
+        return httpx.Response(404)
+
+    client = EDINETClient(
+        EDINETConfig(api_key="test-key"),
+        transport=httpx.MockTransport(handler),
+    )
+    document = EDINETDocument(
+        docID="S100DEMO",
+        secCode="72030",
+        filerName="Demo Corporation",
+        docTypeCode="120",
+        submitDateTime="2026-06-20 15:00",
+        periodEnd="2026-03-31",
+        csvFlag="1",
+    )
+
+    bundle = await EDINETCanonicalPipeline(client).load_document_bundle(
+        document,
+        years=2,
+    )
+
+    assert calls == 1
+    assert bundle.current.get(CanonicalMetric.REVENUE) is not None
+    assert bundle.series.get(0) is not None
+    assert bundle.series.get(1) is not None
