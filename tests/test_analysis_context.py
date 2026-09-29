@@ -1,13 +1,16 @@
 from datetime import UTC, datetime
 from decimal import Decimal
 
+import pytest
+
 from universal_stock_skill.analysis.assembly import FinancialSnapshotAssemblyResult
-from universal_stock_skill.analysis.context import build_analysis_context
+from universal_stock_skill.analysis.context import AnalysisContext, build_analysis_context
 from universal_stock_skill.analysis.derivations import (
     DerivationMethod,
     DerivedFinancialInputs,
 )
 from universal_stock_skill.analysis.models import FinancialSnapshot, StockMetrics
+from universal_stock_skill.analysis.report import EvidenceRef
 from universal_stock_skill.analysis.orchestrator import (
     FilingSelectionSummary,
     StockAnalysisDataBundle,
@@ -128,3 +131,23 @@ def test_context_builds_stable_evidence_and_metric_ids() -> None:
     assert "trend:revenue" in context.trends
     assert any("ROIC is unavailable" in item for item in context.limitations)
     assert any("does not contain peer" in item for item in context.limitations)
+
+
+def test_context_rejects_future_evidence() -> None:
+    with pytest.raises(ValueError, match="newer than requested_as_of"):
+        AnalysisContext(
+            symbol="7203",
+            requested_as_of=datetime(2026, 9, 29, 12, 0, tzinfo=UTC),
+            evidence=[
+                EvidenceRef(
+                    source_id="future:source",
+                    title="Future source",
+                    published_at=datetime(2026, 9, 30, 0, 0, tzinfo=UTC),
+                )
+            ],
+            authoritative_facts={},
+            deterministic_metrics={},
+            trends={},
+            derivations={},
+            limitations=[],
+        )
