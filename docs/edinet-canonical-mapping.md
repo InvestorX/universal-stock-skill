@@ -120,3 +120,21 @@ The analysis layer can then calculate:
 Growth rates whose base value is zero or negative are intentionally left unavailable rather than emitting misleading percentages.
 
 Two-period averaging is generic. The runtime does **not** automatically treat `net_assets` as ROE equity because JP GAAP shareholders' equity and IFRS equity attributable to owners of parent are not identical accounting concepts.
+
+
+## Mapping quality report
+
+`evaluate_mapping_quality()` summarizes the current canonical result for validation and benchmark use.
+
+It reports:
+
+- requested metric count
+- mapped metric count
+- exact standard matches
+- extension fallback matches
+- missing metrics
+- coverage ratio
+- fallback ratio
+- which metrics depended on fallback
+
+This makes real-filing validation measurable instead of treating any non-empty output as success.
