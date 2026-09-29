@@ -99,7 +99,7 @@ Production Skillを実行中に直接自己書換えさせず、候補を分離�
 - 同順位Factの値衝突検出
 - Mock通信による自動テスト
 
-次の中心課題は、企業独自拡張element IDの安全なFallback Mapping、証券コードから必要書類の解決、訂正報告書の優先順位処理、FinancialSnapshot自動変換、実データEnd-to-End分析です。
+企業独自拡張element IDの限定Fallbackまで実装しました。次の中心課題は、実在有報でのMapping検証、証券コードから必要書類の解決、訂正報告書の優先順位処理、CanonicalFinancialSetからFinancialSnapshotへの自動変換、実データEnd-to-End分析です。
 
 ## ドキュメント
 
