@@ -19,6 +19,7 @@ from .canonical_mappings import (
     EXTENSION_EDINET_MAPPINGS,
     STANDARD_EDINET_MAPPINGS,
 )
+from .canonical_quality import CanonicalMappingQuality, evaluate_mapping_quality
 from .edinet import EDINETClient, EDINETConfig, EDINETDocument
 from .edinet_csv import EDINETCsvArchive, EDINETCsvArchiveConfig, EDINETCsvFact
 from .edinet_pipeline import EDINETCanonicalPipeline, EDINETPipelineError
@@ -46,6 +47,7 @@ __all__ = [
     "CanonicalFinancialSeries",
     "CanonicalFinancialSet",
     "CanonicalMappingConflict",
+    "CanonicalMappingQuality",
     "CanonicalMetric",
     "ConsolidationPreference",
     "DisclosureDataSource",
@@ -66,6 +68,7 @@ __all__ = [
     "MappingMatchType",
     "PriceDataSource",
     "ResolvedAnnualFiling",
+    "evaluate_mapping_quality",
     "infer_accounting_standard",
     "normalize_sec_code",
 ]
