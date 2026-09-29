@@ -11,6 +11,7 @@
 - [EDINET analysis pipeline](edinet-pipeline.md)
 - [Market data model](market-data.md)
 - [J-Quants market-data adapter](jquants-market.md)
+- [Deterministic financial derivations](financial-derivations.md)
 - [Benchmark specification](benchmark-spec.md)
 - [RRSI design](rrsi-design.md)
 

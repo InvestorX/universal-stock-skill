@@ -144,6 +144,59 @@ STANDARD_EDINET_MAPPINGS: dict[CanonicalMetric, tuple[ElementAlias, ...]] = {
         _a("jpcrp_cor:CashAndCashEquivalentsIFRSSummaryOfBusinessResults", AccountingStandard.IFRS, priority=160, period="時点"),
         _a("jpcrp_cor:CashAndCashEquivalentsUSGAAPSummaryOfBusinessResults", AccountingStandard.USGAAP, priority=160, period="時点"),
     ),
+    CanonicalMetric.INCOME_TAXES: (
+        _a("jppfs_cor:IncomeTaxes", AccountingStandard.JGAAP, priority=170, period="期間"),
+        _a("ifrs-full:IncomeTaxExpenseContinuingOperations", AccountingStandard.IFRS, priority=170, period="期間"),
+        _a("jpigp_cor:IncomeTaxExpenseIFRS", AccountingStandard.IFRS, priority=160, period="期間"),
+    ),
+    CanonicalMetric.CAPEX_TOTAL: (
+        _a(
+            "jppfs_cor:PurchaseOfPropertyPlantAndEquipmentAndIntangibleAssetsInvCF",
+            AccountingStandard.JGAAP,
+            priority=180,
+            period="期間",
+        ),
+    ),
+    CanonicalMetric.CAPEX_PPE: (
+        _a(
+            "jppfs_cor:PurchaseOfPropertyPlantAndEquipmentInvCF",
+            AccountingStandard.JGAAP,
+            priority=170,
+            period="期間",
+        ),
+        _a(
+            "jpigp_cor:PurchaseOfPropertyPlantAndEquipmentInvCFIFRS",
+            AccountingStandard.IFRS,
+            priority=170,
+            period="期間",
+        ),
+        _a(
+            "ifrs-full:PurchaseOfPropertyPlantAndEquipmentClassifiedAsInvestingActivities",
+            AccountingStandard.IFRS,
+            priority=165,
+            period="期間",
+        ),
+    ),
+    CanonicalMetric.CAPEX_INTANGIBLE: (
+        _a(
+            "jppfs_cor:PurchaseOfIntangibleAssetsInvCF",
+            AccountingStandard.JGAAP,
+            priority=170,
+            period="期間",
+        ),
+        _a(
+            "jpigp_cor:PurchaseOfIntangibleAssetsInvCFIFRS",
+            AccountingStandard.IFRS,
+            priority=170,
+            period="期間",
+        ),
+        _a(
+            "ifrs-full:PurchaseOfIntangibleAssetsClassifiedAsInvestingActivities",
+            AccountingStandard.IFRS,
+            priority=165,
+            period="期間",
+        ),
+    ),
 }
 
 
