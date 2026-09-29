@@ -27,6 +27,6 @@ def test_as_of_requires_timezone() -> None:
         BenchmarkCase(
             case_id="case-001",
             symbol="7203",
-            as_of=datetime(2026, 1, 10, 12, 0),
+            as_of="2026-01-10T12:00:00",
             task="Analyze profitability.",
         )
