@@ -92,3 +92,14 @@ This is the preferred path for reproducible fixture validation because the exact
 `EDINETCanonicalPipeline.load_document_series(document, years=5)` downloads and parses the filing once, then resolves CurrentYear / PriorNYear facts into a canonical historical series.
 
 This feeds deterministic trend analysis directly; the LLM receives already-aligned periods and calculated growth metrics rather than being asked to infer them from raw rows.
+
+
+## Single-download bundle
+
+When both current and historical values are required, use:
+
+~~~python
+bundle = await pipeline.load_document_bundle(document, years=5)
+~~~
+
+The document archive is downloaded and parsed once. The result contains both `current` and `series`, avoiding duplicate EDINET requests.
