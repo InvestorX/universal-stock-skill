@@ -85,7 +85,7 @@ def test_negative_profit_does_not_produce_misleading_cagr() -> None:
     trend = calculate_canonical_trend(series, CanonicalMetric.NET_INCOME)
 
     assert trend is not None
-    assert trend.year_over_year == pytest.approx(-3.0)
+    assert trend.year_over_year is None
     assert trend.cagr_value is None
     assert trend.cagr_years is None
 
