@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Sequence
 from dataclasses import dataclass
 
 from universal_stock_skill.analysis.context import (
@@ -11,6 +12,7 @@ from universal_stock_skill.analysis.grounding import ground_report
 from universal_stock_skill.analysis.models import FinancialSnapshot
 from universal_stock_skill.analysis.orchestrator import StockAnalysisDataBundle
 from universal_stock_skill.analysis.report import StockAnalysisReport
+from universal_stock_skill.evidence.collection import EvidenceItem
 from universal_stock_skill.analysis.workflow import calculate_stock_metrics
 from universal_stock_skill.llm import LLMProvider, LLMRequest, Message
 from universal_stock_skill.runtime import validate_structured_response
@@ -69,9 +71,15 @@ class StockAnalysisWorkflow:
         self,
         bundle: StockAnalysisDataBundle,
         *,
+        evidence_items: Sequence[EvidenceItem] = (),
+        peer_bundles: Sequence[StockAnalysisDataBundle] = (),
         instruction: str = DEFAULT_ANALYSIS_INSTRUCTION,
     ) -> StockAnalysisReport:
-        context = build_analysis_context(bundle)
+        context = build_analysis_context(
+            bundle,
+            evidence_items=evidence_items,
+            peer_bundles=peer_bundles,
+        )
         return await self.run_context(context, instruction=instruction)
 
     async def run_context(
