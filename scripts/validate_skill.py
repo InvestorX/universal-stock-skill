@@ -6,7 +6,6 @@ from pathlib import Path
 
 import yaml
 
-
 NAME_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 
 
@@ -22,7 +21,7 @@ def split_frontmatter(text: str) -> tuple[dict[str, object], str]:
 
     metadata = yaml.safe_load("\n".join(lines[1:end])) or {}
     if not isinstance(metadata, dict):
-        raise ValueError("SKILL.md frontmatter must be a YAML mapping")
+        raise TypeError("SKILL.md frontmatter must be a YAML mapping")
 
     return metadata, "\n".join(lines[end + 1 :])
 
@@ -36,7 +35,7 @@ def validate_skill(skill_dir: Path) -> list[str]:
 
     try:
         metadata, body = split_frontmatter(path.read_text(encoding="utf-8"))
-    except (OSError, ValueError, yaml.YAMLError) as exc:
+    except (OSError, TypeError, ValueError, yaml.YAMLError) as exc:
         return [str(exc)]
 
     name = metadata.get("name")
