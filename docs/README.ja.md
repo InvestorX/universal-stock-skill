@@ -7,5 +7,6 @@
 - [Agent別インストール](installation.ja.md)
 - [Provider Adapter / 実行モード](provider-adapters.ja.md)
 - [データソース設計](data-sources.ja.md)
+- [EDINET Canonical財務Mapping](edinet-canonical-mapping.ja.md)
 - [Benchmark仕様](benchmark-spec.ja.md)
 - [RRSI設計](rrsi-design.ja.md)
