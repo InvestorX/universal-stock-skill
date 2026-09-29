@@ -94,3 +94,29 @@ For extension fallback, the mapper therefore inspects current-year facts across 
 4. With no current-year evidence, the standard remains unknown.
 
 Exact standard-taxonomy mappings still carry their explicitly declared accounting standard.
+
+
+## Historical series
+
+EDINET annual-report CSV commonly includes the current period together with prior-year restatements.
+
+The mapper normalizes those contexts into year offsets:
+
+| EDINET context | year_offset |
+|---|---:|
+| CurrentYear... | 0 |
+| Prior1Year... | 1 |
+| Prior2Year... | 2 |
+| PriorNYear... | N |
+
+`resolve_series(..., years=5)` returns a `CanonicalFinancialSeries` without asking an LLM to align periods.
+
+The analysis layer can then calculate:
+
+- year-over-year change
+- CAGR using the oldest available positive base
+- generic two-period averages
+
+Growth rates whose base value is zero or negative are intentionally left unavailable rather than emitting misleading percentages.
+
+Two-period averaging is generic. The runtime does **not** automatically treat `net_assets` as ROE equity because JP GAAP shareholders' equity and IFRS equity attributable to owners of parent are not identical accounting concepts.
