@@ -68,6 +68,10 @@ def test_inspection_payload_contains_current_series_and_trends() -> None:
     assert quality["exact_count"] == 1
     assert quality["fallback_count"] == 0
 
+    readiness = result["snapshot_readiness"]
+    assert not readiness["ready"]
+    assert "operating_income" in readiness["missing_metrics"]
+
     current_facts = result["current"]["facts"]
     assert current_facts[0]["metric"] == "revenue"
     assert current_facts[0]["value"] == "110"
