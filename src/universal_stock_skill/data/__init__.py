@@ -36,6 +36,7 @@ from .filings import (
     ResolvedAnnualFiling,
     normalize_sec_code,
 )
+from .jquants_market import JQuantsConfig, JQuantsMarketDataError, JQuantsMarketDataSource
 from .market import MarketDataSource, MarketSnapshot
 from .market_selection import MarketSnapshotSelectionError, select_market_snapshot
 
@@ -72,6 +73,9 @@ __all__ = [
     "FactSet",
     "FilingResolutionError",
     "FinancialDataSource",
+    "JQuantsConfig",
+    "JQuantsMarketDataError",
+    "JQuantsMarketDataSource",
     "MappingMatchType",
     "MarketDataSource",
     "MarketSnapshot",
