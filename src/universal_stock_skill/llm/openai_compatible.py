@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
 
 import httpx
@@ -10,18 +10,22 @@ from universal_stock_skill.llm.base import LLMProvider, LLMRequest, LLMResponse
 from universal_stock_skill.llm.capabilities import ProviderCapabilities
 
 
+def _default_capabilities() -> ProviderCapabilities:
+    return ProviderCapabilities(
+        native_tool_calling=True,
+        structured_output=True,
+        json_schema=True,
+        parallel_tool_calls=True,
+    )
+
+
 @dataclass(frozen=True)
 class OpenAICompatibleConfig:
     model: str
     base_url: str
     api_key: str | None = None
     timeout_seconds: float = 120.0
-    capabilities: ProviderCapabilities = ProviderCapabilities(
-        native_tool_calling=True,
-        structured_output=True,
-        json_schema=True,
-        parallel_tool_calls=True,
-    )
+    capabilities: ProviderCapabilities = field(default_factory=_default_capabilities)
 
 
 class OpenAICompatibleProvider(LLMProvider):
