@@ -2,70 +2,91 @@
 
 **English** | [日本語](README.ja.md)
 
-A model-independent skill runtime for evidence-grounded stock analysis, with an RRSI-inspired evolution loop.
+A portable Agent Skill and Python runtime for point-in-time, evidence-grounded stock analysis, with an RRSI-inspired improvement loop.
 
-> Status: early architecture / runtime implementation.
+> Status: runtime foundation, EDINET API/CSV fact ingestion, and portable Agent Skill packaging are implemented.
 
-## What this project is
+## Overview
 
-The goal is to make stock-analysis knowledge portable across LLMs.
+The project has two execution modes.
 
-```text
-Stock Analysis Skill
-        |
-        v
-Universal Skill Runtime
-        |
-   +----+-----+---------+---------+
-   |          |         |         |
- OpenAI    Claude    Gemini    Local LLM
-   |          |         |         |
-   +----------+---------+---------+
-              |
-              v
-     deterministic Python tools
-              |
-              v
- financials / prices / filings / news
-```
+~~~mermaid
+flowchart TD
+    U[User request] --> S[stock-analysis Skill]
+    S --> H[Current host agent]
+    S --> P[Deterministic Python]
+    P --> D[Financials / prices / filings / news]
+    D --> P
+    P --> H
+    H --> R[Evidence-grounded report]
 
-LLMs handle interpretation, hypothesis generation and reporting. Calculations, time constraints and deterministic transformations stay in Python.
+    S -. optional standalone mode .-> RT[Universal Skill Runtime]
+    RT --> A[LLM Provider Adapter]
+    A --> M[Explicitly configured model]
+~~~
+
+For normal Agent Skill use, the **current host agent is the reasoning engine**. Codex uses Codex, Claude Code uses Claude, Antigravity uses its active agent, and Hermes uses Hermes. The skill does not require a second LLM endpoint, model name, or API key.
+
+The standalone Python runtime remains available for cross-model benchmarks, batch execution, application embedding, and RRSI experiments.
 
 ## Design principles
 
-- **LLM-agnostic**: skill definitions do not contain provider-specific instructions.
-- **Python for deterministic work**: calculations, dates and data transforms are not delegated to the LLM.
-- **Point-in-time by default**: benchmark cases have an `as_of` timestamp to prevent future-information leakage.
-- **Evidence first**: material factual claims must be traceable to source metadata.
-- **Cross-model evaluation**: a skill should work well across model families, not only the model that evolved it.
-- **Reviewable evolution**: RRSI candidates are evaluated in isolation and promoted through Git/PR, never self-modified in production.
+- **Host-agent first**: delegate reasoning to the current agent.
+- **LLM-agnostic**: keep vendor APIs out of portable skill instructions.
+- **Python for deterministic work**: calculations, source-time checks, parsing, and validation are machine-enforced.
+- **Point-in-time by default**: reject information published after the analysis cutoff.
+- **Evidence first**: material factual claims should remain traceable.
+- **Reviewable evolution**: isolate, benchmark, and review RRSI candidates before promotion.
 
-## Repository layout
+## Portable Agent Skill
 
-```text
-docs/
-src/universal_stock_skill/
-  llm/
-  runtime/
-  finance/
-  benchmark/
-  skills/stock_analysis/
-  evolution/
-scripts/
-tests/
-```
+The canonical skill bundle is:
+
+~~~text
+.agents/skills/stock-analysis/
+├── SKILL.md
+├── skill.yaml
+├── references/
+│   └── execution-modes.md
+└── agents/
+    └── openai.yaml
+~~~
+
+The SKILL.md manifest follows the open Agent Skills shape with portable name and description frontmatter.
+
+Installation for Codex, Claude Code, Antigravity CLI, and Hermes Agent is documented in [docs/installation.md](docs/installation.md).
+
+## Documentation
+
+See [docs/README.md](docs/README.md). Every project document has a Japanese counterpart.
 
 ## Development
 
-Requires Python 3.11+.
+Python 3.11+:
 
-```bash
+~~~bash
 python -m venv .venv
 # Windows
 .venv\Scripts\activate
 
 pip install -e ".[dev]"
 pytest
-```
+~~~
 
-See [README.ja.md](README.ja.md) for the Japanese guide and [docs/architecture.md](docs/architecture.md) for the architecture.
+Validate the portable skill:
+
+~~~bash
+python scripts/validate_skill.py
+~~~
+
+Install it for an agent:
+
+~~~bash
+python scripts/install_agent_skill.py --agent all --scope user
+~~~
+
+Run the synthetic metrics demo:
+
+~~~bash
+python scripts/run_analysis.py 7203 --demo
+~~~

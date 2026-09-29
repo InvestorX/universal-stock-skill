@@ -1,54 +1,62 @@
-# Provider adapters
+# Provider adapters and execution modes
 
-The skill layer must not know which LLM vendor is in use.
+[日本語](provider-adapters.ja.md)
+
+## Host-agent mode is the default for installed skills
+
+When stock-analysis is installed into Codex, Claude Code, Antigravity CLI, or Hermes Agent, the current agent itself is the reasoning provider. No extra LLM endpoint is required.
+
+~~~mermaid
+flowchart LR
+    S[SKILL.md] --> H[Host Agent]
+    T[Host-native tools] --> H
+    P[Deterministic Python] --> H
+    H --> O[Analysis output]
+~~~
+
+The skill should prefer capabilities already available to the host: browser/search, MCP, local files, shell, and the host model.
+
+## Standalone mode
+
+Provider Adapters exist for programmatic runs that intentionally control model routing.
+
+~~~mermaid
+flowchart LR
+    C[CLI / Benchmark / RRSI] --> R[SkillRuntime]
+    R --> A[LLMProvider]
+    A --> OAI[OpenAI-compatible]
+    A --> N[Future native adapters]
+    R --> P[Deterministic Python]
+~~~
+
+Use standalone mode for cross-model evaluation, batch runs, or embedding the runtime in another application.
 
 ## Contract
 
-Every adapter implements:
+Every standalone adapter implements:
 
-```python
+~~~python
 async def generate(request: LLMRequest) -> LLMResponse:
     ...
-```
+~~~
 
-The runtime sends vendor-neutral:
-
-- messages
-- tool definitions
-- optional JSON schema
-- temperature
-
-The adapter translates those into the provider's API.
+The runtime sends vendor-neutral messages, tools, optional JSON schema, and sampling configuration.
 
 ## Capability negotiation
 
-Each model/provider pair exposes `ProviderCapabilities`.
+ProviderCapabilities currently represents:
 
-Current flags:
+- native_tool_calling
+- structured_output
+- json_schema
+- parallel_tool_calls
 
-- `native_tool_calling`
-- `structured_output`
-- `json_schema`
-- `parallel_tool_calls`
-
-A future runtime layer will use these flags to select:
-
-1. native provider feature when available
-2. provider-neutral text/JSON fallback otherwise
+PortableLLMProvider supplies a text-to-JSON fallback when native structured output is unavailable.
 
 ## OpenAI-compatible adapter
 
-`OpenAICompatibleProvider` targets the common Chat Completions API shape.
-
-This is useful for:
-
-- OpenAI-compatible hosted APIs
-- local gateways
-- vLLM servers configured with an OpenAI-compatible endpoint
-- other servers that implement the same API shape
-
-The adapter should not be confused with "OpenAI-only": it is a protocol compatibility layer.
+OpenAICompatibleProvider targets the common Chat Completions shape and can be used with compatible hosted or local gateways. It is an optional standalone protocol adapter, not a requirement for Agent Skill installation.
 
 ## Native adapters
 
-Native Anthropic and Gemini adapters can be added when native features are materially better than the compatibility route. They should still expose the same `LLMProvider` contract.
+Native adapters should be added only when a provider's native behavior materially improves capability or reliability. They must preserve the same provider-neutral contract.

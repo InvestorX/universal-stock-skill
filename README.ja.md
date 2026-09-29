@@ -2,169 +2,111 @@
 
 [English](README.md) | **日本語**
 
-**LLMに依存しない銘柄分析Skill Runtime** と、RRSI（Recursive Self-Improvement）の考え方を取り入れた自動改善基盤です。
+**時点整合性とEvidenceを重視した銘柄分析を、特定LLMに縛られず再利用するためのAgent Skill + Python Runtime** です。RRSIの考え方を取り入れた改善基盤も段階的に構築します。
 
-> 現在の状態: Runtime / Point-in-Time / EDINET接続基盤を実装中
+> 現在: Runtime基盤、EDINET API / CSV Fact取込、Portable Agent Skill化まで実装中です。
 
-## このプロジェクトの目的
+## 全体像
 
-銘柄分析の知識・分析手順・評価方法を、特定のLLMベンダーから切り離します。
+銘柄分析は2つの実行モードに分けます。
 
-```text
-Stock Analysis Skill
-        |
-        v
-Universal Skill Runtime
-        |
-   +----+-----+---------+-----------+
-   |          |         |           |
- OpenAI    Claude    Gemini    Local LLM
-   |          |         |           |
-   +----------+---------+-----------+
-              |
-              v
-       Pythonによる決定論的処理
-              |
-              v
-      財務 / 株価 / 開示 / ニュース
-```
+~~~mermaid
+flowchart TD
+    U[ユーザーの銘柄分析依頼] --> S[stock-analysis Skill]
+    S --> H[現在の親Agent]
+    S --> P[決定論的Python処理]
+    P --> D[財務 / 株価 / 開示 / ニュース]
+    D --> P
+    P --> H
+    H --> R[Evidence付き分析レポート]
 
-LLMは「考える・解釈する・文章化する」ことに使い、計算や時点判定など、正確さを機械的に保証できる処理はPythonで行います。
+    S -. Standalone実行時のみ .-> RT[Universal Skill Runtime]
+    RT --> A[LLM Provider Adapter]
+    A --> M[明示設定されたモデル]
+~~~
 
-## RRSIによるSkill改善
+通常のAgent Skill利用では、**今このSkillを実行している親Agent自身を推論エンジンとして使います**。
 
-本番Skill自身を書き換えさせるのではなく、候補を隔離して評価します。
+- Codex上ならCodex
+- Claude Code上ならClaude
+- Antigravity CLI上なら現在のAntigravity Agent
+- Hermes Agent上ならHermes
 
-```text
-現在のSkill
-    |
-    v
-失敗分析
-    |
-    v
-改善候補A / B / C
-    |
-    v
-Point-in-Time Benchmark
-    |
-    v
-複数LLMで評価
-    |
-    v
-Critic / 漏洩チェック
-    |
-    v
-採用Candidate
-    |
-    v
-Git Branch / Pull Request
-    |
-    v
-人間がレビューして本番昇格
-```
+したがって、Skillとして使うだけなら別のLLM endpoint、model名、LLM API keyを設定する必要はありません。
+
+Python standalone runtimeのProvider Adapterは、複数モデルBenchmark、Batch実行、RRSI評価など、明示的に外部モデルを切り替えたい用途だけで使います。
 
 ## 設計原則
 
-- **LLM非依存**: SkillにはOpenAI・Anthropic・Gemini固有の命令を書かない
-- **計算はPython**: PER、PBR、CAGR、利益率、ROE、ROICなどはLLMに計算させない
-- **Point-in-Time**: `as_of` より未来の情報を使用しない
-- **Evidence First**: 重要な事実には出典情報を紐付ける
+- **Host-Agent First**: 推論は親Agentへ委譲する
+- **LLM非依存**: Portable Skillへベンダー固有APIを埋め込まない
+- **計算はPython**: 財務計算、時点判定、Parser、Validationは決定論的に処理する
+- **Point-in-Time**: as_of より後に公開された情報を利用しない
+- **Evidence First**: 重要な事実は出典と結び付ける
 - **Cross-Model評価**: 特定モデルだけに最適化されたSkillを避ける
-- **Reviewable Evolution**: 自動改善結果はGit/PR経由でレビュー可能にする
+- **Reviewable Evolution**: RRSI候補は隔離・評価してGitレビュー経由で昇格する
 
-## ディレクトリ構成
+## Portable Agent Skill
 
-```text
-docs/
-  architecture.md
-  skill-spec.md
-  benchmark-spec.md
-  rrsi-design.md
-  provider-adapters.md
-  data-sources.md
+正本は次です。
 
-src/universal_stock_skill/
-  llm/                   # LLM共通インターフェース / Provider Adapter
-  runtime/               # Skill実行Runtime / Tool Registry
-  finance/               # 決定論的な財務計算
-  benchmark/             # Point-in-Time Benchmark
-  evidence/              # 出典情報 / 未来情報漏洩防止
-  data/                  # EDINET等のデータソースAdapter
-  analysis/              # 指標計算 -> LLM分析Workflow
-  skills/stock_analysis/ # 銘柄分析Skill
-  evolution/             # RRSI評価・Fitness
+~~~text
+.agents/skills/stock-analysis/
+├── SKILL.md
+├── skill.yaml
+├── references/
+│   └── execution-modes.md
+└── agents/
+    └── openai.yaml
+~~~
 
-scripts/
-tests/
-```
+SKILL.md はOpen Agent Skills系の形式に合わせ、name / description のYAML frontmatterを持ちます。
 
-## 銘柄分析での役割分担
+Codex、Claude Code、Antigravity CLI、Hermes Agentへの導入は [docs/installation.ja.md](docs/installation.ja.md) を参照してください。
 
-### Pythonが担当
+## RRSIによる改善
 
-- 株価・財務データ取得
-- 日付・公開時点チェック
-- PER / PBR
-- CAGR
-- 利益率
-- ROE / ROIC
-- キャッシュフロー指標
-- ランキング
-- 比較用データ整形
+~~~mermaid
+flowchart TD
+    P[現在のProduction Skill] --> A[失敗分析]
+    A --> C[Candidate生成]
+    C --> B[Point-in-Time Benchmark]
+    B --> X[Cross-Model評価]
+    X --> K[Critic / Leakage Check]
+    K -->|棄却| C
+    K -->|採用| PR[Git Branch / Pull Request]
+    PR --> H[人間レビュー]
+    H -->|承認| P
+~~~
 
-### LLMが担当
-
-- 業績変化の意味を解釈
-- 成長ドライバーの整理
-- リスクの抽出
-- シナリオ分析
-- 財務・開示・ニュース間の関係整理
-- 最終レポート作成
-
-## Point-in-Time
-
-過去時点の銘柄分析やRRSIのBenchmarkでは、`as_of` より後に公開された資料を使用してはいけません。
-
-```text
-資料の published_at <= analysis.as_of
-                    |
-                 利用可能
-
-資料の published_at > analysis.as_of
-                    |
-              Runtimeで拒否
-```
-
-この判定はLLMへの指示ではなく、Pythonの `PointInTimeGuard` で強制します。
+Production Skillを実行中に直接自己書換えさせず、候補を分離して評価します。
 
 ## EDINET
 
-EDINET API v2向けのクライアント基盤を実装しています。
-
 現在できること:
 
-- 日付を指定した提出書類一覧の取得
-- `docID` を指定した書類データの取得
-- EDINET提出日時をEvidenceへ変換
-- API通信をMock化した自動テスト
+- 日付指定の提出書類一覧取得
+- docID 指定の書類取得
+- EDINET提出日時のEvidence化
 - XBRL変換CSV ZIPの展開
-- 公式9列フォーマット（UTF-16LE / タブ区切り）のFact化
-- 数値FactのDecimal変換
-- 「-」を明示的な0として正規化
-- 要素ID / コンテキストID等による決定論的なFact検索
+- 公式9列フォーマットのFact化
+- UTF-16LE / タブ区切り読込
+- Decimalへの数値正規化
+- EDINETのハイフン値を明示的な0として処理
+- 要素ID / コンテキストID等による決定論的Fact検索
+- Mock通信による自動テスト
 
-まだ未実装:
+次の中心課題は、EDINET FactからCanonical財務指標へのMapping、証券コードから必要書類の解決、訂正報告書の優先順位処理、FinancialSnapshot自動変換、実データEnd-to-End分析です。
 
-- EDINET Factから売上高・営業利益等の共通指標へのCanonical Mapping
-- 証券コードから必要書類を自動選択
-- 訂正報告書・複数提出書類の優先順位処理
-- FinancialSnapshotへの自動変換
+## ドキュメント
 
-## 開発環境
+日本語ドキュメント一覧は [docs/README.ja.md](docs/README.ja.md) にあります。
+
+## 開発
 
 Python 3.11以上。
 
-```bash
+~~~bash
 python -m venv .venv
 
 # Windows
@@ -172,50 +114,22 @@ python -m venv .venv
 
 pip install -e ".[dev]"
 pytest
-```
+~~~
 
-合成データだけで財務計算を試す場合:
+Skill形式を検証:
 
-```bash
+~~~bash
+python scripts/validate_skill.py
+~~~
+
+各Agentへ導入:
+
+~~~bash
+python scripts/install_agent_skill.py --agent all --scope user
+~~~
+
+合成データで財務計算:
+
+~~~bash
 python scripts/run_analysis.py 7203 --demo
-```
-
-## 現在のロードマップ
-
-### Phase 1 — Foundation
-- [x] LLM共通インターフェース
-- [x] Stock Analysis Skill初期定義
-- [x] Point-in-Time Benchmark設計
-- [x] Cross-Model Fitness設計
-- [x] RRSI改善フロー設計
-
-### Phase 2 — Runnable Runtime
-- [x] Provider Capabilityモデル
-- [x] OpenAI-Compatible Adapter
-- [x] Tool Registry
-- [x] 財務計算モジュール
-- [x] Benchmark Caseモデル
-- [x] Structured Output validation
-- [x] Stock Analysis Workflow基盤
-- [x] Evidence / Point-in-Time Guard
-- [x] Text-only LLM向けStructured Output fallback
-- [ ] Provider-neutral Tool Calling fallback
-- [ ] 実データを使ったEnd-to-End分析
-
-### Phase 3 — Market Data
-- [x] EDINET APIクライアント基盤
-- [x] EDINET XBRL変換CSV Fact Parser
-- [ ] EDINET Fact -> Canonical財務指標Mapping
-- [ ] TDnet
-- [ ] 株価データ
-- [ ] IR資料
-- [ ] ニュース
-
-### Phase 4 — Evolution
-- [ ] Candidate Proposer
-- [ ] Critic
-- [ ] Multi-Model Benchmark Runner
-- [ ] Git Worktree isolation
-- [ ] Candidate PR自動生成
-
-詳しい設計は [docs/architecture.md](docs/architecture.md) を参照してください。
+~~~

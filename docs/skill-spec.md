@@ -1,53 +1,70 @@
 # Skill specification
 
-A skill is a model-independent package describing a task.
+[日本語](skill-spec.ja.md)
 
-Minimum files:
+## Portable format
 
-```text
-skills/<skill_name>/
-├─ SKILL.md
-└─ skill.yaml
-```
+The canonical distributable skill is stored at:
 
-A stock-analysis skill may additionally contain:
+~~~text
+.agents/skills/stock-analysis/
+├── SKILL.md
+├── skill.yaml
+├── references/
+│   └── execution-modes.md
+└── agents/
+    └── openai.yaml
+~~~
 
-```text
-workflows/
-prompts/
-rules/
-schemas/
-```
+SKILL.md follows the open Agent Skills shape used by current agent products.
 
-## Design constraints
+Required portable YAML frontmatter:
 
-A portable skill must not assume a vendor-specific API.
+~~~yaml
+---
+name: stock-analysis
+description: A concrete description of what the skill does and when it should be used.
+---
+~~~
 
-Avoid instructions such as:
+Portability rules:
 
-- "call OpenAI function X"
-- "use Anthropic tool_use"
-- "use Gemini schema mode"
+- name uses lowercase letters, digits, and hyphens
+- name is at most 64 characters
+- description is non-empty and at most 1024 characters
+- description states both capability and activation context
+- vendor-specific behavior does not go into required frontmatter
+- supporting details use progressive disclosure through references or scripts
+- the core SKILL.md should remain concise
 
-Instead describe capabilities:
+## Execution contract
 
-- call tool
-- return structured output
-- cite evidence
-- request missing data
+The default execution mode is **host-agent**.
 
-The runtime translates those capabilities into each provider's native representation or a text fallback.
+The skill must not ask the user for an LLM endpoint, model name, or LLM API key merely to run inside an agent product.
+
+The host agent owns reasoning, interpretation, final synthesis, native model selection, and its native web/browser/MCP/file/shell tools.
+
+Deterministic Python owns financial calculations, source timestamp checks, point-in-time enforcement, normalization, and deterministic extraction.
+
+The optional standalone runtime may use Provider Adapters when the caller explicitly wants controlled model routing.
+
+## Internal skill.yaml
+
+skill.yaml is project metadata, not a required part of the open Agent Skills format. It records runtime capabilities, versioning, and execution policy for this repository.
+
+## Agent-specific sidecars
+
+Agent-specific metadata is optional and isolated from portable SKILL.md. For example, agents/openai.yaml can provide Codex-specific display metadata without changing portable instructions.
 
 ## Tool contract
 
-Tools should use JSON-serializable inputs and outputs.
+Tools should use JSON-serializable inputs and outputs. Evidence-bearing results should include, when available:
 
-Each evidence-bearing result should include, when available:
-
-- source identifier
+- stable source identifier
 - source URL
-- publication / filing timestamp
+- publication or filing timestamp
 - effective period
 - retrieval timestamp
 
-This is required for point-in-time evaluation.
+These fields support point-in-time evaluation and provenance checks.
