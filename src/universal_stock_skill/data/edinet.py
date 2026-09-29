@@ -9,7 +9,6 @@ from pydantic import BaseModel, Field
 
 from universal_stock_skill.evidence import SourceRecord
 
-
 JST = ZoneInfo("Asia/Tokyo")
 
 
