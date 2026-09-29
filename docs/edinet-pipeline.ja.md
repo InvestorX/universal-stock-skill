@@ -75,3 +75,11 @@ python scripts/inspect_edinet_document.py S100XXXX
 このコマンドはEDINETのdocument type 5を取得し、XBRL変換CSVをparseしてCanonical Mapping結果とmissing項目をJSON表示します。
 
 LLMは呼び出しません。
+
+すでにtype=5 ZIPを保存済みなら、API keyなしでも検証できます。
+
+~~~bash
+python scripts/inspect_edinet_csv.py path/to/document.zip
+~~~
+
+実ファイルを固定して再現性あるMapping検証を行う場合はこちらを推奨します。
