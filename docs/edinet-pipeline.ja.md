@@ -92,3 +92,14 @@ python scripts/inspect_edinet_csv.py path/to/document.zip
 `EDINETCanonicalPipeline.load_document_series(document, years=5)` は有報ZIPを1回だけ取得・parseし、CurrentYear / PriorNYearをCanonicalな時系列へ変換します。
 
 そのまま決定論的Trend計算へ渡すため、LLMに生CSV行から年度を推定させたり、成長率を暗算させたりしません。
+
+
+## Single-download Bundle
+
+当期値と時系列の両方が必要な場合は次を使います。
+
+~~~python
+bundle = await pipeline.load_document_bundle(document, years=5)
+~~~
+
+EDINET書類ZIPの取得・parseは1回だけ行い、`current` と `series` を同時に返します。不要なEDINET API再取得を防げます。
