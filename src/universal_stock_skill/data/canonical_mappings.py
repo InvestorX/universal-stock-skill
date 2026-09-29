@@ -5,6 +5,7 @@ from universal_stock_skill.data.canonical import (
     CanonicalFinancialMapper,
     CanonicalMetric,
     ElementAlias,
+    ExtensionRule,
 )
 
 
@@ -138,4 +139,49 @@ STANDARD_EDINET_MAPPINGS: dict[CanonicalMetric, tuple[ElementAlias, ...]] = {
 }
 
 
-DEFAULT_CANONICAL_MAPPER = CanonicalFinancialMapper(STANDARD_EDINET_MAPPINGS)
+EXTENSION_EDINET_MAPPINGS: dict[CanonicalMetric, tuple[ExtensionRule, ...]] = {
+    CanonicalMetric.REVENUE: (
+        ExtensionRule(
+            contains_any=("Revenue", "NetSales", "Sales"),
+            excluded_substrings=(
+                "Intersegment",
+                "Segment",
+                "Cost",
+                "Expense",
+                "Expenses",
+                "PerShare",
+                "Ratio",
+            ),
+            priority=60,
+            expected_period_type="期間",
+            semantic_note=(
+                "Matched a company-specific extension taxonomy element with a "
+                "curated revenue fallback rule."
+            ),
+        ),
+    ),
+    CanonicalMetric.OPERATING_INCOME: (
+        ExtensionRule(
+            contains_any=(
+                "OperatingIncome",
+                "OperatingProfit",
+                "BusinessProfit",
+                "CoreOperatingIncome",
+                "ProfitFromBusinessActivities",
+            ),
+            excluded_substrings=("Segment", "Margin", "Ratio", "PerShare"),
+            priority=60,
+            expected_period_type="期間",
+            semantic_note=(
+                "Matched a company-specific extension taxonomy element with a "
+                "curated operating-income fallback rule."
+            ),
+        ),
+    ),
+}
+
+
+DEFAULT_CANONICAL_MAPPER = CanonicalFinancialMapper(
+    STANDARD_EDINET_MAPPINGS,
+    EXTENSION_EDINET_MAPPINGS,
+)
