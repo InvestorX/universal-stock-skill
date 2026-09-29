@@ -38,6 +38,7 @@ from .orchestrator import (
     StockAnalysisDataBundle,
     StockAnalysisOrchestrator,
 )
+from .peer_orchestrator import PeerAnalysisOrchestrator, PeerAnalysisResult
 from .peers import (
     PeerComparisonError,
     PeerComparisonSet,
@@ -75,6 +76,8 @@ __all__ = [
     "GroundedClaim",
     "MissingCanonicalMetric",
     "MissingMarketCapitalization",
+    "PeerAnalysisOrchestrator",
+    "PeerAnalysisResult",
     "PeerComparisonError",
     "PeerComparisonSet",
     "PeerMetricRow",
