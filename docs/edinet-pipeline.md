@@ -103,3 +103,21 @@ bundle = await pipeline.load_document_bundle(document, years=5)
 ~~~
 
 The document archive is downloaded and parsed once. The result contains both `current` and `series`, avoiding duplicate EDINET requests.
+
+
+## FinancialSnapshot readiness preflight
+
+Before building a `FinancialSnapshot`, call `evaluate_snapshot_readiness(current)`.
+
+The filing-side required metrics are:
+
+- revenue
+- operating income
+- net income
+- EPS
+- BPS
+- operating cash flow
+
+The result reports whether all six are present, which are missing, and which required metrics depend on extension fallback.
+
+This is only the filing-side preflight. Price, market capitalization, average equity, and capital expenditure still come from separate deterministic sources or derivations.
