@@ -14,5 +14,6 @@
 - [決定論的な財務派生値](financial-derivations.ja.md)
 - [End-to-End銘柄分析Data Bundle](e2e-stock-analysis.ja.md)
 - [Analysis Report Layer](analysis-report-layer.ja.md)
+- [Qualitative Evidence / Peer Comparison Layer](evidence-peer-layer.ja.md)
 - [Benchmark仕様](benchmark-spec.ja.md)
 - [RRSI設計](rrsi-design.ja.md)
