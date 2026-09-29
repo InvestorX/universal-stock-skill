@@ -58,6 +58,13 @@ def test_toyota_reference_analysis_reuses_existing_finance_pipeline() -> None:
         result.assembly.derived.capital_expenditure_method
         == DerivationMethod.CAPEX_TOTAL_FACT
     )
+    assert float(result.assembly.derived.effective_tax_rate) == pytest.approx(
+        0.2265156037
+    )
+    assert float(result.assembly.derived.nopat) == pytest.approx(
+        2_913_109_309_000,
+        rel=1e-6,
+    )
 
     snapshot = result.assembly.snapshot
     assert snapshot.operating_cash_flow == 5_472_920_000_000
