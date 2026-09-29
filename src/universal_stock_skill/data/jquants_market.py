@@ -10,7 +10,6 @@ from pydantic import BaseModel, Field
 
 from universal_stock_skill.data.market import MarketSnapshot
 
-
 JST = ZoneInfo("Asia/Tokyo")
 TSE_CLOSE = time(15, 30)
 
