@@ -2,6 +2,8 @@ import io
 import zipfile
 from pathlib import Path
 
+import pytest
+
 from scripts.inspect_edinet_csv import build_inspection_payload, main
 
 
@@ -74,4 +76,4 @@ def test_inspection_payload_contains_current_series_and_trends() -> None:
         for item in result["trends"]["trends"]
         if item["metric"] == "revenue"
     )
-    assert revenue["year_over_year"] == 0.1
+    assert revenue["year_over_year"] == pytest.approx(0.1)
