@@ -6,7 +6,6 @@ from datetime import date, datetime
 
 from universal_stock_skill.data.edinet import EDINETDocument
 
-
 ANNUAL_REPORT_DOC_TYPE = "120"
 ANNUAL_REPORT_CORRECTION_DOC_TYPE = "130"
 
