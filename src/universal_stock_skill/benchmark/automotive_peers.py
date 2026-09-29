@@ -89,7 +89,7 @@ class AutomotivePeerReference(BaseModel):
             raise ValueError("peer market timestamp cannot exceed requested_as_of")
 
         market_cap = price * self.shares_outstanding
-        per = price / float(self.eps_yen) if self.eps_yen != 0 else None
+        per = price / float(self.eps_yen) if self.eps_yen > 0 else None
         pbr = price / float(self.bps_yen) if self.bps_yen != 0 else None
         revenue_yoy = float(
             self.revenue_million_yen / self.prior_revenue_million_yen
@@ -218,7 +218,7 @@ def nissan_7201_reference() -> AutomotivePeerReference:
         roe=Decimal("-0.109"),
         operating_margin=Decimal("0.005"),
         shares_outstanding=3_496_382_520,
-        operating_cash_flow_million_yen=Decimal(794_674),
+        operating_cash_flow_million_yen=Decimal(753_687),
         cash_capex_million_yen=None,
         evidence=[
             EvidenceItem(
@@ -323,7 +323,8 @@ def toyota_honda_nissan_peer_comparison(
             ),
             (
                 "Honda and Nissan report losses for the common annual period; "
-                "negative PER values are not conventional positive earnings multiples."
+                "PER is therefore unavailable rather than represented as a "
+                "negative earnings multiple."
             ),
             *honda.notes,
             *nissan.notes,
