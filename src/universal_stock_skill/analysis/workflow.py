@@ -13,13 +13,15 @@ from universal_stock_skill.finance import (
 
 
 def calculate_stock_metrics(snapshot: FinancialSnapshot) -> StockMetrics:
+    calculated_per = per(snapshot.price, snapshot.eps) if snapshot.eps > 0 else None
+
     calculated_roic: float | None = None
     if snapshot.nopat is not None and snapshot.average_invested_capital is not None:
         calculated_roic = roic(snapshot.nopat, snapshot.average_invested_capital)
 
     return StockMetrics(
         operating_margin=margin(snapshot.operating_income, snapshot.revenue),
-        per=per(snapshot.price, snapshot.eps),
+        per=calculated_per,
         pbr=pbr(snapshot.price, snapshot.bps),
         roe=roe(snapshot.net_income, snapshot.average_equity),
         free_cash_flow=free_cash_flow(
