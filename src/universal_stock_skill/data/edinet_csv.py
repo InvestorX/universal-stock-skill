@@ -5,6 +5,7 @@ import io
 import zipfile
 from dataclasses import dataclass
 from decimal import Decimal, InvalidOperation
+from typing import ClassVar
 
 from pydantic import BaseModel, Field
 
@@ -58,17 +59,19 @@ class EDINETCsvArchiveError(ValueError):
 
 
 class EDINETCsvArchive:
-    REQUIRED_COLUMNS = {
-        "要素ID",
-        "項目名",
-        "コンテキストID",
-        "相対年度",
-        "連結・個別",
-        "期間・時点",
-        "ユニットID",
-        "単位",
-        "値",
-    }
+    REQUIRED_COLUMNS: ClassVar[frozenset[str]] = frozenset(
+        {
+            "要素ID",
+            "項目名",
+            "コンテキストID",
+            "相対年度",
+            "連結・個別",
+            "期間・時点",
+            "ユニットID",
+            "単位",
+            "値",
+        }
+    )
 
     def __init__(self, config: EDINETCsvArchiveConfig | None = None) -> None:
         self.config = config or EDINETCsvArchiveConfig()
@@ -121,14 +124,14 @@ class EDINETCsvArchive:
 
         facts: list[EDINETCsvFact] = []
         for row_number, row in enumerate(reader, start=2):
-            payload = {
+            fact_payload = {
                 key: (value if value is not None else "")
                 for key, value in row.items()
                 if key is not None
             }
-            payload["source_file"] = source_file
-            payload["row_number"] = row_number
-            facts.append(EDINETCsvFact.model_validate(payload))
+            fact_payload["source_file"] = source_file
+            fact_payload["row_number"] = row_number
+            facts.append(EDINETCsvFact.model_validate(fact_payload))
 
         return facts
 
