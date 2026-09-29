@@ -63,6 +63,11 @@ def test_inspection_payload_contains_current_series_and_trends() -> None:
     result = build_inspection_payload(sample_zip(), years=2)
 
     assert result["fact_count"] == 2
+    quality = result["mapping_quality"]
+    assert quality["mapped_count"] == 1
+    assert quality["exact_count"] == 1
+    assert quality["fallback_count"] == 0
+
     current_facts = result["current"]["facts"]
     assert current_facts[0]["metric"] == "revenue"
     assert current_facts[0]["value"] == "110"
