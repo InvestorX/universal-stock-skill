@@ -12,8 +12,8 @@ from universal_stock_skill.analysis.grounding import ground_report
 from universal_stock_skill.analysis.models import FinancialSnapshot
 from universal_stock_skill.analysis.orchestrator import StockAnalysisDataBundle
 from universal_stock_skill.analysis.report import StockAnalysisReport
-from universal_stock_skill.evidence.collection import EvidenceItem
 from universal_stock_skill.analysis.workflow import calculate_stock_metrics
+from universal_stock_skill.evidence.collection import EvidenceItem
 from universal_stock_skill.llm import LLMProvider, LLMRequest, Message
 from universal_stock_skill.runtime import validate_structured_response
 
