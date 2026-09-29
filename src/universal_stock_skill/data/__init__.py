@@ -8,14 +8,21 @@ from .canonical import (
     CanonicalMetric,
     ConsolidationPreference,
     ElementAlias,
+    ExtensionRule,
+    MappingMatchType,
 )
-from .canonical_mappings import DEFAULT_CANONICAL_MAPPER, STANDARD_EDINET_MAPPINGS
+from .canonical_mappings import (
+    DEFAULT_CANONICAL_MAPPER,
+    EXTENSION_EDINET_MAPPINGS,
+    STANDARD_EDINET_MAPPINGS,
+)
 from .edinet import EDINETClient, EDINETConfig, EDINETDocument
 from .edinet_csv import EDINETCsvArchive, EDINETCsvArchiveConfig, EDINETCsvFact
 from .facts import FactQuery, FactSet
 
 __all__ = [
     "DEFAULT_CANONICAL_MAPPER",
+    "EXTENSION_EDINET_MAPPINGS",
     "STANDARD_EDINET_MAPPINGS",
     "AccountingStandard",
     "CanonicalFinancialFact",
@@ -32,8 +39,10 @@ __all__ = [
     "EDINETCsvFact",
     "EDINETDocument",
     "ElementAlias",
+    "ExtensionRule",
     "FactQuery",
     "FactSet",
     "FinancialDataSource",
+    "MappingMatchType",
     "PriceDataSource",
 ]
