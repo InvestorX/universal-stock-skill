@@ -10,6 +10,7 @@ from .canonical import (
     ElementAlias,
     ExtensionRule,
     MappingMatchType,
+    infer_accounting_standard,
 )
 from .canonical_mappings import (
     DEFAULT_CANONICAL_MAPPER,
@@ -61,5 +62,6 @@ __all__ = [
     "MappingMatchType",
     "PriceDataSource",
     "ResolvedAnnualFiling",
+    "infer_accounting_standard",
     "normalize_sec_code",
 ]
