@@ -48,6 +48,10 @@ async def test_peer_orchestrator_uses_same_as_of_and_preserves_order(monkeypatch
         fake_build,
     )
 
+    monkeypatch.setattr(
+        "universal_stock_skill.analysis.peer_orchestrator.PeerAnalysisResult",
+        lambda **kwargs: type("Result", (), kwargs)(),
+    )
     orchestrator = PeerAnalysisOrchestrator(stock)  # type: ignore[arg-type]
     result = await orchestrator.analyze(
         "7203",
