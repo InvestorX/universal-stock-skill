@@ -195,3 +195,19 @@ async def test_http_error_is_wrapped() -> None:
         )
 
     await source.aclose()
+
+
+def test_config_can_load_api_key_from_environment(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("JQUANTS_API_KEY", "env-key")
+
+    config = JQuantsConfig.from_env()
+
+    assert config.api_key == "env-key"
+    assert config.base_url == "https://api.jquants.com/v2"
+
+
+def test_config_requires_environment_key(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("JQUANTS_API_KEY", raising=False)
+
+    with pytest.raises(ValueError):
+        JQuantsConfig.from_env()
