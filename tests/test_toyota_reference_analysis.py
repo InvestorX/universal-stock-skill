@@ -12,7 +12,6 @@ from universal_stock_skill.benchmark.toyota_analysis import (
 )
 from universal_stock_skill.data.canonical import CanonicalMetric
 
-
 JST = ZoneInfo("Asia/Tokyo")
 
 
