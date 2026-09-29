@@ -54,11 +54,11 @@ __all__ = [
     "build_snapshot_bridge_inputs",
     "calculate_canonical_trend",
     "calculate_canonical_trends",
+    "calculate_stock_metrics",
     "derive_average_equity",
     "derive_capital_expenditure",
     "derive_financial_inputs",
     "derive_nopat",
-    "calculate_stock_metrics",
     "evaluate_snapshot_readiness",
     "normalize_ratio",
 ]
