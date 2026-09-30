@@ -137,6 +137,51 @@ peer:7203:position:operating_margin:delta_to_peer_mean
 
 差分はすべて `対象銘柄 - 比較値` です。符号は純粋な数値差であり、優劣判定ではありません。また順位1位は、そのMetricで定義した数値順の先頭という意味で、総合投資評価や「最良」を意味しません。
 
+## 決定論的な4軸 Peer Profile
+
+`PeerPositioningSet` を、決定論的な `PeerProfileSet` に集約します。**総合点や総合Peer順位は作りません。**
+
+4軸は次の通りです。
+
+- 収益性: 営業利益率、ROE
+- 成長: 売上高YoY
+- バリュエーション: PER、PBR
+- キャッシュ創出力: FCF Yield
+
+各Metricは、既存の決定論的順位を比較可能数で正規化します。
+
+~~~text
+rank_fraction = (rank - 1) / (available_count - 1)
+~~~
+
+そのうえで次に分類します。
+
+- `first_third`: rank_fraction < 1/3
+- `middle_third`: 1/3 <= rank_fraction <= 2/3
+- `last_third`: rank_fraction > 2/3
+- `unranked`: 決定論的順位を算出できない
+
+各軸では次の個数だけを集約します。
+
+- configured_metric_count
+- ranked_metric_count
+- first_third_count
+- middle_third_count
+- last_third_count
+- unranked_count
+
+Grounding可能な安定ID例:
+
+~~~text
+peer:7203:profile:profitability:configured_metric_count
+peer:7203:profile:profitability:ranked_metric_count
+peer:7203:profile:profitability:first_third_count
+peer:7203:profile:valuation:unranked_count
+peer:7203:profile:cash_generation:ranked_metric_count
+~~~
+
+ProfileはPeer Positioningで定義したMetricごとの数値順をそのまま使います。したがってfirst_thirdは、その数値順での位置を表すだけで、総合的な優劣や投資評価ではありません。各軸は分離したまま扱い、合算して総合点・総合順位を作ってはいけません。
+
 ## AnalysisContextへの追加
 
 build_analysis_context()へoptionalで渡します。
