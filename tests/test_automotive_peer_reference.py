@@ -110,6 +110,16 @@ def test_toyota_peer_context_removes_missing_peer_limitation() -> None:
 
     assert "peer:7267:operating_margin" in context.metric_ids
     assert "peer:7201:revenue_yoy" in context.metric_ids
+    assert context.peer_metrics[
+        "peer:7203:position:operating_margin:rank"
+    ] == 1.0
+    assert context.peer_metrics[
+        "peer:7203:position:operating_margin:available_count"
+    ] == 3.0
+    assert context.peer_metrics["peer:7203:position:roe:rank"] == 1.0
+    assert context.peer_metrics["peer:7203:position:revenue_yoy:rank"] == 1.0
+    assert context.peer_metrics["peer:7203:position:per:rank"] is None
+    assert "peer_positioning" in context.authoritative_facts
     assert "peer:7267:ir:fy2026-results" in context.evidence_ids
     assert "peer:7201:ir:fy2025-results" in context.evidence_ids
     assert (

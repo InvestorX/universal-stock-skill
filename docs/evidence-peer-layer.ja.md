@@ -100,6 +100,43 @@ peer:6758:edinet:S100XXXX
 peer:6758:market:jquants:v2:...
 ~~~
 
+## 決定論的な相対ポジショニング
+
+`PeerComparisonSet` から決定論的な `PeerPositioningSet` を生成できます。順位、中央値、Peer平均をLLMの自由計算に任せません。
+
+現在の対象Metricと数値順:
+
+- PER: 昇順
+- PBR: 昇順
+- ROE: 降順
+- 営業利益率: 降順
+- FCF Yield: 降順
+- 売上高YoY: 降順
+
+各Metricについて次を保持します。
+
+- 対象銘柄の値
+- 順位と比較可能企業数
+- 対象銘柄を含むComparison Set中央値
+- 中央値との差
+- 対象銘柄を除くPeer平均
+- Peer平均との差
+
+比較可能な値が2つ未満の場合は順位を出しません。欠損値は順位計算から除外し、完全同値は同順位にします。
+
+Grounding可能な安定IDも `peer_metrics` に追加します。
+
+~~~text
+peer:7203:position:operating_margin:rank
+peer:7203:position:operating_margin:available_count
+peer:7203:position:operating_margin:comparison_median
+peer:7203:position:operating_margin:delta_to_median
+peer:7203:position:operating_margin:peer_mean
+peer:7203:position:operating_margin:delta_to_peer_mean
+~~~
+
+差分はすべて `対象銘柄 - 比較値` です。符号は純粋な数値差であり、優劣判定ではありません。また順位1位は、そのMetricで定義した数値順の先頭という意味で、総合投資評価や「最良」を意味しません。
+
 ## AnalysisContextへの追加
 
 build_analysis_context()へoptionalで渡します。

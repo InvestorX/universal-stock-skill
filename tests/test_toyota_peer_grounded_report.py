@@ -39,6 +39,19 @@ class ToyotaPeerFakeProvider:
         assert context["peer_metrics"]["peer:7201:operating_margin"] == pytest.approx(
             0.005
         )
+        assert context["peer_metrics"][
+            "peer:7203:position:operating_margin:rank"
+        ] == 1.0
+        assert context["peer_metrics"][
+            "peer:7203:position:operating_margin:available_count"
+        ] == 3.0
+        assert context["peer_metrics"]["peer:7203:position:roe:rank"] == 1.0
+        assert context["peer_metrics"]["peer:7203:position:revenue_yoy:rank"] == 1.0
+        assert context["peer_metrics"]["peer:7203:position:per:rank"] is None
+        assert context["peer_metrics"][
+            "peer:7203:position:per:available_count"
+        ] == 1.0
+        assert "peer_positioning" in context["authoritative_facts"]
 
         evidence_ids = {item["source_id"] for item in context["evidence"]}
         assert "toyota:ir:fy2026-results" in evidence_ids
@@ -84,8 +97,8 @@ class ToyotaPeerFakeProvider:
                 "peer_analysis": {
                     "profitability": {
                         "text": (
-                            "Toyota has the stronger profitability profile in "
-                            "the supplied common-period comparison."
+                            "Toyota is rank 1 of 3 by operating margin and ROE "
+                            "under the documented descending numeric order."
                         ),
                         "claim_ids": [
                             "peer-operating-margin",
@@ -101,16 +114,16 @@ class ToyotaPeerFakeProvider:
                     },
                     "growth": {
                         "text": (
-                            "Toyota has the higher revenue growth rate in the "
-                            "supplied common-period comparison."
+                            "Toyota is rank 1 of 3 by revenue growth under the "
+                            "documented descending numeric order."
                         ),
                         "claim_ids": ["peer-revenue-growth"],
                     },
                     "competitive_position": {
                         "text": (
-                            "The supplied profitability and growth metrics place "
-                            "Toyota ahead of the two reference peers on those "
-                            "specific dimensions."
+                            "Toyota is rank 1 of 3 on revenue growth, operating "
+                            "margin, and ROE under each metric's documented "
+                            "numeric ordering."
                         ),
                         "claim_ids": [
                             "peer-revenue-growth",
@@ -145,6 +158,8 @@ class ToyotaPeerFakeProvider:
                             "peer:7203:revenue_yoy",
                             "peer:7267:revenue_yoy",
                             "peer:7201:revenue_yoy",
+                            "peer:7203:position:revenue_yoy:rank",
+                            "peer:7203:position:revenue_yoy:delta_to_peer_mean",
                         ],
                     },
                     {
@@ -163,6 +178,11 @@ class ToyotaPeerFakeProvider:
                             "peer:7203:operating_margin",
                             "peer:7267:operating_margin",
                             "peer:7201:operating_margin",
+                            "peer:7203:position:operating_margin:rank",
+                            (
+                                "peer:7203:position:operating_margin:"
+                                "delta_to_peer_mean"
+                            ),
                         ],
                     },
                     {
@@ -181,6 +201,8 @@ class ToyotaPeerFakeProvider:
                             "peer:7203:roe",
                             "peer:7267:roe",
                             "peer:7201:roe",
+                            "peer:7203:position:roe:rank",
+                            "peer:7203:position:roe:delta_to_peer_mean",
                         ],
                     },
                     {
@@ -197,6 +219,7 @@ class ToyotaPeerFakeProvider:
                         "metric_ids": [
                             "peer:7267:per",
                             "peer:7201:per",
+                            "peer:7203:position:per:available_count",
                         ],
                     },
                     {
@@ -263,6 +286,14 @@ async def test_toyota_peer_grounded_report_uses_real_peer_evidence() -> None:
         "peer-operating-margin",
         "peer-roe",
     ]
+
+    claims = {claim.claim_id: claim for claim in report.claims}
+    assert "peer:7203:position:operating_margin:rank" in (
+        claims["peer-operating-margin"].metric_ids
+    )
+    assert "peer:7203:position:revenue_yoy:rank" in (
+        claims["peer-revenue-growth"].metric_ids
+    )
 
     evidence_ids = {item.source_id for item in report.evidence}
     assert evidence_ids == {

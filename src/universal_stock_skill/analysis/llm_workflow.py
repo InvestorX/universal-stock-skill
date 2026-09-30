@@ -115,8 +115,12 @@ class StockAnalysisWorkflow:
                         "growth, cash-flow, and competitive-position sections. Every populated "
                         "peer_analysis section must reference claim_ids from claims, and those "
                         "claims must cite at least one peer: metric or peer: evidence ID. "
-                        "Return a StockAnalysisReport that conforms exactly to the requested "
-                        "schema."
+                        "When authoritative_facts.peer_positioning is present, use its "
+                        "supplied rank, comparison median, peer mean, and delta values instead "
+                        "of recalculating relative positions. A rank of 1 means first under "
+                        "the documented numeric order for that metric, not a blanket statement "
+                        "that the company is best. Return a StockAnalysisReport that conforms "
+                        "exactly to the requested schema."
                     ),
                 ),
                 Message(
