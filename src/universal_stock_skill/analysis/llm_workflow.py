@@ -119,8 +119,13 @@ class StockAnalysisWorkflow:
                         "supplied rank, comparison median, peer mean, and delta values instead "
                         "of recalculating relative positions. A rank of 1 means first under "
                         "the documented numeric order for that metric, not a blanket statement "
-                        "that the company is best. Return a StockAnalysisReport that conforms "
-                        "exactly to the requested schema."
+                        "that the company is best. When authoritative_facts.peer_profile is "
+                        "present, use its profitability, growth, valuation, and cash-generation "
+                        "axis summaries directly. Describe how many configured metrics are "
+                        "ranked and how many fall in the first, middle, or last rank third; "
+                        "preserve unranked metrics explicitly. Never combine the axes into a "
+                        "single score or overall rank. Return a StockAnalysisReport that "
+                        "conforms exactly to the requested schema."
                     ),
                 ),
                 Message(
