@@ -33,6 +33,19 @@ Position IDs use the `peer:<subject>:position:<metric>:...` namespace and are va
 
 Interpret rank only according to the supplied numeric order. Rank 1 is not a general "best company" label. Delta values are subject minus comparator and do not encode desirability by themselves.
 
+## Deterministic Peer Profile
+
+When `peer_profile` is supplied, use the four axes separately:
+
+- profitability
+- growth
+- valuation
+- cash generation
+
+Each axis contains configured/ranked metric counts and first/middle/last-third or unranked counts. Use the supplied `peer:<subject>:profile:<axis>:...` IDs for claims about these counts.
+
+Do not add the four axes together, derive a composite score, or invent an overall peer rank. The thirds reflect metric-specific numeric ordering only.
+
 ## Structured peer sections
 
 When peer metrics are supplied, prefer structured `peer_analysis` subsections for profitability, valuation, growth, cash flow, and competitive position.
