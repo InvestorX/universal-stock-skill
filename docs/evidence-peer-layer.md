@@ -137,6 +137,51 @@ peer:7203:position:operating_margin:delta_to_peer_mean
 
 All deltas are `subject - comparator`. Their sign is a numerical difference only. Rank 1 means first under the documented numeric ordering for that metric; it is not a general investment score or a claim that the company is universally "best."
 
+## Deterministic four-axis Peer Profile
+
+`PeerPositioningSet` is also aggregated into a deterministic `PeerProfileSet`. The profile intentionally does **not** create a composite score or overall peer rank.
+
+The four axes are:
+
+- profitability: operating margin, ROE
+- growth: revenue YoY
+- valuation: PER, PBR
+- cash generation: free-cash-flow yield
+
+For each metric, the existing deterministic rank is normalized within the number of comparable values:
+
+~~~text
+rank_fraction = (rank - 1) / (available_count - 1)
+~~~
+
+The metric is then classified as:
+
+- `first_third`: rank_fraction < 1/3
+- `middle_third`: 1/3 <= rank_fraction <= 2/3
+- `last_third`: rank_fraction > 2/3
+- `unranked`: no deterministic rank is available
+
+Each axis reports only counts:
+
+- configured_metric_count
+- ranked_metric_count
+- first_third_count
+- middle_third_count
+- last_third_count
+- unranked_count
+
+Stable grounding IDs include:
+
+~~~text
+peer:7203:profile:profitability:configured_metric_count
+peer:7203:profile:profitability:ranked_metric_count
+peer:7203:profile:profitability:first_third_count
+peer:7203:profile:valuation:unranked_count
+peer:7203:profile:cash_generation:ranked_metric_count
+~~~
+
+The profile preserves the metric-specific numeric orders already defined by peer positioning. A first-third count is therefore a statement about position under those documented orders, not a general quality score. Axes must remain separate; callers and models must not sum them into an overall score or overall company ranking.
+
 ## AnalysisContext enrichment
 
 build_analysis_context() accepts optional:
