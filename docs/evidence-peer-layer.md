@@ -100,6 +100,43 @@ peer:6758:edinet:S100XXXX
 peer:6758:market:jquants:v2:...
 ~~~
 
+## Deterministic relative positioning
+
+`PeerComparisonSet` can be converted into a deterministic `PeerPositioningSet`. This prevents the model from calculating ranks, medians, or peer averages in free-form reasoning.
+
+The positioning layer currently covers:
+
+- PER: ascending numeric order
+- PBR: ascending numeric order
+- ROE: descending numeric order
+- operating margin: descending numeric order
+- free-cash-flow yield: descending numeric order
+- revenue YoY: descending numeric order
+
+For each metric it records:
+
+- subject value
+- rank and available-company count
+- comparison-set median, including the subject
+- delta from that median
+- peer-only mean, excluding the subject
+- delta from that peer-only mean
+
+Ranks are emitted only when at least two comparable values exist. Missing values are excluded. Exact ties share the same competition rank.
+
+Stable metric IDs are added to `peer_metrics`, for example:
+
+~~~text
+peer:7203:position:operating_margin:rank
+peer:7203:position:operating_margin:available_count
+peer:7203:position:operating_margin:comparison_median
+peer:7203:position:operating_margin:delta_to_median
+peer:7203:position:operating_margin:peer_mean
+peer:7203:position:operating_margin:delta_to_peer_mean
+~~~
+
+All deltas are `subject - comparator`. Their sign is a numerical difference only. Rank 1 means first under the documented numeric ordering for that metric; it is not a general investment score or a claim that the company is universally "best."
+
 ## AnalysisContext enrichment
 
 build_analysis_context() accepts optional:
