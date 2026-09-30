@@ -40,10 +40,15 @@ from .orchestrator import (
 )
 from .peer_orchestrator import PeerAnalysisOrchestrator, PeerAnalysisResult
 from .peers import (
+    PEER_POSITION_ORDERS,
     PeerComparisonError,
     PeerComparisonSet,
+    PeerMetricOrder,
+    PeerMetricPosition,
     PeerMetricRow,
+    PeerPositioningSet,
     build_peer_comparison,
+    build_peer_positioning,
 )
 from .report import (
     ClaimKind,
@@ -81,10 +86,14 @@ __all__ = [
     "MissingMarketCapitalization",
     "PeerAnalysisOrchestrator",
     "PeerAnalysisResult",
+    "PEER_POSITION_ORDERS",
     "PeerComparisonAnalysis",
     "PeerComparisonError",
     "PeerComparisonSet",
+    "PeerMetricOrder",
+    "PeerMetricPosition",
     "PeerMetricRow",
+    "PeerPositioningSet",
     "ReportGroundingError",
     "SnapshotBridgeInputs",
     "SnapshotCanonicalReadiness",
@@ -100,6 +109,7 @@ __all__ = [
     "build_analysis_context",
     "build_financial_snapshot",
     "build_peer_comparison",
+    "build_peer_positioning",
     "build_snapshot_bridge_inputs",
     "calculate_canonical_trend",
     "calculate_canonical_trends",
