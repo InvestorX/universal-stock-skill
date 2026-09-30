@@ -25,6 +25,14 @@ Do not invent an ID that is not present in the supplied context.
 
 Every material fact or calculation must identify its supporting evidence ID or deterministic metric/trend/derivation ID.
 
+## Deterministic peer positioning
+
+When `peer_positioning` is supplied, use its rank, available count, median, peer mean, and delta values directly. Do not mentally recalculate them.
+
+Position IDs use the `peer:<subject>:position:<metric>:...` namespace and are valid deterministic metric references.
+
+Interpret rank only according to the supplied numeric order. Rank 1 is not a general "best company" label. Delta values are subject minus comparator and do not encode desirability by themselves.
+
 ## Structured peer sections
 
 When peer metrics are supplied, prefer structured `peer_analysis` subsections for profitability, valuation, growth, cash flow, and competitive position.
