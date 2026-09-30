@@ -1,0 +1,22 @@
+# ドキュメント一覧
+
+[English](README.md) | **日本語**
+
+- [アーキテクチャ](architecture.ja.md)
+- [Skill仕様](skill-spec.ja.md)
+- [Agent別インストール](installation.ja.md)
+- [Provider Adapter / 実行モード](provider-adapters.ja.md)
+- [データソース設計](data-sources.ja.md)
+- [EDINET Canonical財務Mapping](edinet-canonical-mapping.ja.md)
+- [EDINET分析Pipeline](edinet-pipeline.ja.md)
+- [Market Dataモデル](market-data.ja.md)
+- [J-Quants Market Data Adapter](jquants-market.ja.md)
+- [決定論的な財務派生値](financial-derivations.ja.md)
+- [End-to-End銘柄分析Data Bundle](e2e-stock-analysis.ja.md)
+- [Analysis Report Layer](analysis-report-layer.ja.md)
+- [Qualitative Evidence / Peer Comparison Layer](evidence-peer-layer.ja.md)
+- [Benchmark仕様](benchmark-spec.ja.md)
+- [トヨタ7203 Reference Case](toyota-reference-case.ja.md)
+- [トヨタ7203 Grounded Report Regression](toyota-grounded-report.ja.md)
+- [トヨタ自動車Peer Regression](toyota-automotive-peers.ja.md)
+- [RRSI設計](rrsi-design.ja.md)
