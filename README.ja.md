@@ -136,3 +136,11 @@ python scripts/install_agent_skill.py --agent all --scope user
 ~~~bash
 python scripts/run_analysis.py 7203 --demo
 ~~~
+
+
+## ライセンス
+
+**"THE SUSHI-WARE LICENSE"** で公開しています。詳細は [LICENSE](LICENSE) を参照してください。
+
+自己改善アーキテクチャはRRSIの設計思想を参考にしていますが、現在の
+`src/` 実装にはRRSIソースコードの直接コピーは含まれていません。
