@@ -103,6 +103,8 @@ When deterministic peer metrics are available, prefer the structured `peer_analy
 
 Each populated peer subsection must reference existing structured claim IDs, and those claims must cite supplied `peer:` metric or evidence IDs. Do not create a peer subsection from unsupported prose alone.
 
+When deterministic peer positioning is supplied, use its rank/count/median/peer-mean/delta values directly instead of recalculating them. Treat rank as metric-specific numeric ordering only, not as an overall investment score.
+
 ## Verification
 
 Before finishing, verify:
