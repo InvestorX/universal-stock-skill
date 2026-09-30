@@ -90,3 +90,11 @@ Run the synthetic metrics demo:
 ~~~bash
 python scripts/run_analysis.py 7203 --demo
 ~~~
+
+
+## License
+
+Released under **"THE SUSHI-WARE LICENSE"**. See [LICENSE](LICENSE).
+
+The project's self-improvement design is RRSI-inspired, but the current
+`src/` implementation does not incorporate copied RRSI source code.
