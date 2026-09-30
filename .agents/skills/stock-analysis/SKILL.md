@@ -105,6 +105,8 @@ Each populated peer subsection must reference existing structured claim IDs, and
 
 When deterministic peer positioning is supplied, use its rank/count/median/peer-mean/delta values directly instead of recalculating them. Treat rank as metric-specific numeric ordering only, not as an overall investment score.
 
+When a deterministic Peer Profile is supplied, report profitability, growth, valuation, and cash-generation axes separately. Use the supplied axis counts and preserve unranked metrics. Never sum the axes into a composite score or overall peer rank.
+
 ## Verification
 
 Before finishing, verify:
