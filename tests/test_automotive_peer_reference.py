@@ -120,6 +120,39 @@ def test_toyota_peer_context_removes_missing_peer_limitation() -> None:
     assert context.peer_metrics["peer:7203:position:revenue_yoy:rank"] == 1.0
     assert context.peer_metrics["peer:7203:position:per:rank"] is None
     assert "peer_positioning" in context.authoritative_facts
+    assert "peer_profile" in context.authoritative_facts
+    assert context.peer_metrics[
+        "peer:7203:profile:profitability:configured_metric_count"
+    ] == 2.0
+    assert context.peer_metrics[
+        "peer:7203:profile:profitability:ranked_metric_count"
+    ] == 2.0
+    assert context.peer_metrics[
+        "peer:7203:profile:profitability:first_third_count"
+    ] == 2.0
+    assert context.peer_metrics[
+        "peer:7203:profile:growth:first_third_count"
+    ] == 1.0
+    assert context.peer_metrics[
+        "peer:7203:profile:valuation:configured_metric_count"
+    ] == 2.0
+    assert context.peer_metrics[
+        "peer:7203:profile:valuation:ranked_metric_count"
+    ] == 1.0
+    assert context.peer_metrics[
+        "peer:7203:profile:valuation:last_third_count"
+    ] == 1.0
+    assert context.peer_metrics[
+        "peer:7203:profile:valuation:unranked_count"
+    ] == 1.0
+    assert context.peer_metrics[
+        "peer:7203:profile:cash_generation:ranked_metric_count"
+    ] == 1.0
+    assert not any(
+        "score" in metric_id
+        for metric_id in context.peer_metrics
+        if ":profile:" in metric_id
+    )
     assert "peer:7267:ir:fy2026-results" in context.evidence_ids
     assert "peer:7201:ir:fy2025-results" in context.evidence_ids
     assert (

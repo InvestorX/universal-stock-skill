@@ -223,6 +223,16 @@ def test_context_can_include_qualitative_evidence_and_peer_metrics() -> None:
     assert context.peer_metrics["peer:7203:position:per:available_count"] == 2.0
     assert "peer_comparison" in context.authoritative_facts
     assert "peer_positioning" in context.authoritative_facts
+    assert "peer_profile" in context.authoritative_facts
+    assert context.peer_metrics[
+        "peer:7203:profile:profitability:configured_metric_count"
+    ] == 2.0
+    assert context.peer_metrics[
+        "peer:7203:profile:profitability:first_third_count"
+    ] == 2.0
+    assert context.peer_metrics[
+        "peer:7203:profile:valuation:first_third_count"
+    ] == 2.0
     assert "qualitative_evidence" in context.authoritative_facts
     assert "Deterministic peer comparison data is unavailable." not in context.limitations
     assert "News evidence is unavailable." not in context.limitations

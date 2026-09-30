@@ -11,6 +11,7 @@ from universal_stock_skill.analysis.peers import (
     PeerComparisonSet,
     build_peer_comparison,
     build_peer_positioning,
+    build_peer_profile,
 )
 from universal_stock_skill.analysis.report import EvidenceRef
 from universal_stock_skill.evidence.collection import EvidenceItem
@@ -96,15 +97,18 @@ def build_analysis_context(
     peer_metrics: dict[str, float | None] = {}
     peer_comparison = None
     peer_positioning = None
+    peer_profile = None
     if peer_bundles:
         peer_comparison = build_peer_comparison(
             bundle,
             list(peer_bundles),
         )
         peer_positioning = build_peer_positioning(peer_comparison)
+        peer_profile = build_peer_profile(peer_positioning)
         peer_metrics = {
             **peer_comparison.metric_values(),
             **peer_positioning.metric_values(),
+            **peer_profile.metric_values(),
         }
         for peer in peer_bundles:
             evidence.extend(
@@ -135,6 +139,10 @@ def build_analysis_context(
         )
     if peer_positioning is not None:
         authoritative_facts["peer_positioning"] = peer_positioning.model_dump(
+            mode="json"
+        )
+    if peer_profile is not None:
+        authoritative_facts["peer_profile"] = peer_profile.model_dump(
             mode="json"
         )
 
@@ -273,8 +281,10 @@ def add_peer_comparison_to_context(
 
     authoritative_facts = dict(context.authoritative_facts)
     positioning = build_peer_positioning(comparison)
+    profile = build_peer_profile(positioning)
     authoritative_facts["peer_comparison"] = comparison.model_dump(mode="json")
     authoritative_facts["peer_positioning"] = positioning.model_dump(mode="json")
+    authoritative_facts["peer_profile"] = profile.model_dump(mode="json")
     if evidence_items:
         authoritative_facts["peer_evidence"] = [
             item.model_dump(mode="json")
@@ -301,6 +311,7 @@ def add_peer_comparison_to_context(
         peer_metrics={
             **comparison.metric_values(),
             **positioning.metric_values(),
+            **profile.metric_values(),
         },
         trends=dict(context.trends),
         derivations=dict(context.derivations),
