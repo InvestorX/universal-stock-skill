@@ -69,6 +69,7 @@ from .workflow import calculate_stock_metrics
 
 __all__ = [
     "DEFAULT_TREND_METRICS",
+    "PEER_POSITION_ORDERS",
     "AnalysisContext",
     "CanonicalMetricTrend",
     "CanonicalTrendSet",
@@ -86,7 +87,6 @@ __all__ = [
     "MissingMarketCapitalization",
     "PeerAnalysisOrchestrator",
     "PeerAnalysisResult",
-    "PEER_POSITION_ORDERS",
     "PeerComparisonAnalysis",
     "PeerComparisonError",
     "PeerComparisonSet",
