@@ -52,6 +52,22 @@ class ToyotaPeerFakeProvider:
             "peer:7203:position:per:available_count"
         ] == 1.0
         assert "peer_positioning" in context["authoritative_facts"]
+        assert "peer_profile" in context["authoritative_facts"]
+        assert context["peer_metrics"][
+            "peer:7203:profile:profitability:first_third_count"
+        ] == 2.0
+        assert context["peer_metrics"][
+            "peer:7203:profile:growth:first_third_count"
+        ] == 1.0
+        assert context["peer_metrics"][
+            "peer:7203:profile:valuation:ranked_metric_count"
+        ] == 1.0
+        assert context["peer_metrics"][
+            "peer:7203:profile:valuation:unranked_count"
+        ] == 1.0
+        assert context["peer_metrics"][
+            "peer:7203:profile:cash_generation:ranked_metric_count"
+        ] == 1.0
 
         evidence_ids = {item["source_id"] for item in context["evidence"]}
         assert "toyota:ir:fy2026-results" in evidence_ids
@@ -103,6 +119,7 @@ class ToyotaPeerFakeProvider:
                         "claim_ids": [
                             "peer-operating-margin",
                             "peer-roe",
+                            "peer-profile-profitability",
                         ],
                     },
                     "valuation": {
@@ -110,14 +127,27 @@ class ToyotaPeerFakeProvider:
                             "Honda and Nissan conventional PER comparison is "
                             "unavailable because common-period EPS is negative."
                         ),
-                        "claim_ids": ["peer-negative-per"],
+                        "claim_ids": [
+                            "peer-negative-per",
+                            "peer-profile-valuation",
+                        ],
                     },
                     "growth": {
                         "text": (
                             "Toyota is rank 1 of 3 by revenue growth under the "
                             "documented descending numeric order."
                         ),
-                        "claim_ids": ["peer-revenue-growth"],
+                        "claim_ids": [
+                            "peer-revenue-growth",
+                            "peer-profile-growth",
+                        ],
+                    },
+                    "cash_flow": {
+                        "text": (
+                            "The cash-generation profile has one configured "
+                            "metric and it is rank-comparable in this fixture."
+                        ),
+                        "claim_ids": ["peer-profile-cash-generation"],
                     },
                     "competitive_position": {
                         "text": (
@@ -223,6 +253,82 @@ class ToyotaPeerFakeProvider:
                         ],
                     },
                     {
+                        "claim_id": "peer-profile-profitability",
+                        "text": (
+                            "The profitability profile has two configured "
+                            "metrics; both are ranked and both fall in the "
+                            "first rank third."
+                        ),
+                        "kind": "calculation",
+                        "evidence_ids": [],
+                        "metric_ids": [
+                            (
+                                "peer:7203:profile:profitability:"
+                                "configured_metric_count"
+                            ),
+                            (
+                                "peer:7203:profile:profitability:"
+                                "ranked_metric_count"
+                            ),
+                            (
+                                "peer:7203:profile:profitability:"
+                                "first_third_count"
+                            ),
+                        ],
+                    },
+                    {
+                        "claim_id": "peer-profile-growth",
+                        "text": (
+                            "The growth profile has one configured metric, "
+                            "which is ranked in the first rank third."
+                        ),
+                        "kind": "calculation",
+                        "evidence_ids": [],
+                        "metric_ids": [
+                            "peer:7203:profile:growth:configured_metric_count",
+                            "peer:7203:profile:growth:ranked_metric_count",
+                            "peer:7203:profile:growth:first_third_count",
+                        ],
+                    },
+                    {
+                        "claim_id": "peer-profile-valuation",
+                        "text": (
+                            "The valuation profile has two configured metrics: "
+                            "one is ranked in the last rank third and one is "
+                            "unranked because a comparable PER rank is unavailable."
+                        ),
+                        "kind": "calculation",
+                        "evidence_ids": [],
+                        "metric_ids": [
+                            (
+                                "peer:7203:profile:valuation:"
+                                "configured_metric_count"
+                            ),
+                            "peer:7203:profile:valuation:ranked_metric_count",
+                            "peer:7203:profile:valuation:last_third_count",
+                            "peer:7203:profile:valuation:unranked_count",
+                        ],
+                    },
+                    {
+                        "claim_id": "peer-profile-cash-generation",
+                        "text": (
+                            "The cash-generation profile has one configured "
+                            "metric and one ranked metric."
+                        ),
+                        "kind": "calculation",
+                        "evidence_ids": [],
+                        "metric_ids": [
+                            (
+                                "peer:7203:profile:cash_generation:"
+                                "configured_metric_count"
+                            ),
+                            (
+                                "peer:7203:profile:cash_generation:"
+                                "ranked_metric_count"
+                            ),
+                        ],
+                    },
+                    {
                         "claim_id": "nissan-fcf-not-comparable",
                         "text": (
                             "Nissan FCF yield is unavailable in this reference "
@@ -281,10 +387,12 @@ async def test_toyota_peer_grounded_report_uses_real_peer_evidence() -> None:
     assert report.peer_analysis.profitability is not None
     assert report.peer_analysis.valuation is not None
     assert report.peer_analysis.growth is not None
+    assert report.peer_analysis.cash_flow is not None
     assert report.peer_analysis.competitive_position is not None
     assert report.peer_analysis.profitability.claim_ids == [
         "peer-operating-margin",
         "peer-roe",
+        "peer-profile-profitability",
     ]
 
     claims = {claim.claim_id: claim for claim in report.claims}
@@ -293,6 +401,14 @@ async def test_toyota_peer_grounded_report_uses_real_peer_evidence() -> None:
     )
     assert "peer:7203:position:revenue_yoy:rank" in (
         claims["peer-revenue-growth"].metric_ids
+    )
+    assert (
+        "peer:7203:profile:profitability:first_third_count"
+        in claims["peer-profile-profitability"].metric_ids
+    )
+    assert (
+        "peer:7203:profile:valuation:unranked_count"
+        in claims["peer-profile-valuation"].metric_ids
     )
 
     evidence_ids = {item.source_id for item in report.evidence}
@@ -309,6 +425,10 @@ async def test_toyota_peer_grounded_report_uses_real_peer_evidence() -> None:
         "peer-operating-margin",
         "peer-roe",
         "peer-negative-per",
+        "peer-profile-profitability",
+        "peer-profile-growth",
+        "peer-profile-valuation",
+        "peer-profile-cash-generation",
         "nissan-fcf-not-comparable",
     } <= claim_ids
 
