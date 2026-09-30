@@ -19,6 +19,20 @@ class PeerMetricOrder(StrEnum):
     DESCENDING = "descending"
 
 
+class PeerProfileAxis(StrEnum):
+    PROFITABILITY = "profitability"
+    GROWTH = "growth"
+    VALUATION = "valuation"
+    CASH_GENERATION = "cash_generation"
+
+
+class PeerProfileBand(StrEnum):
+    FIRST_THIRD = "first_third"
+    MIDDLE_THIRD = "middle_third"
+    LAST_THIRD = "last_third"
+    UNRANKED = "unranked"
+
+
 PEER_POSITION_ORDERS: dict[str, PeerMetricOrder] = {
     "per": PeerMetricOrder.ASCENDING,
     "pbr": PeerMetricOrder.ASCENDING,
@@ -26,6 +40,19 @@ PEER_POSITION_ORDERS: dict[str, PeerMetricOrder] = {
     "operating_margin": PeerMetricOrder.DESCENDING,
     "free_cash_flow_yield": PeerMetricOrder.DESCENDING,
     "revenue_yoy": PeerMetricOrder.DESCENDING,
+}
+
+PEER_PROFILE_METRICS: dict[PeerProfileAxis, tuple[str, ...]] = {
+    PeerProfileAxis.PROFITABILITY: (
+        "operating_margin",
+        "roe",
+    ),
+    PeerProfileAxis.GROWTH: ("revenue_yoy",),
+    PeerProfileAxis.VALUATION: (
+        "per",
+        "pbr",
+    ),
+    PeerProfileAxis.CASH_GENERATION: ("free_cash_flow_yield",),
 }
 
 
@@ -131,6 +158,90 @@ class PeerPositioningSet(BaseModel):
         )
 
 
+class PeerProfileMetric(BaseModel):
+    metric: str = Field(min_length=1)
+    rank: int | None
+    available_count: int = Field(ge=0)
+    rank_fraction: float | None = Field(default=None, ge=0.0, le=1.0)
+    band: PeerProfileBand
+
+
+class PeerProfileAxisSummary(BaseModel):
+    axis: PeerProfileAxis
+    configured_metric_count: int = Field(ge=1)
+    ranked_metric_count: int = Field(ge=0)
+    first_third_count: int = Field(ge=0)
+    middle_third_count: int = Field(ge=0)
+    last_third_count: int = Field(ge=0)
+    unranked_count: int = Field(ge=0)
+    metrics: list[PeerProfileMetric]
+
+    @model_validator(mode="after")
+    def validate_counts(self) -> PeerProfileAxisSummary:
+        if self.configured_metric_count != len(self.metrics):
+            raise ValueError(
+                "configured_metric_count must match profile metric count"
+            )
+        if self.ranked_metric_count + self.unranked_count != len(self.metrics):
+            raise ValueError(
+                "ranked_metric_count plus unranked_count must match metrics"
+            )
+        if (
+            self.first_third_count
+            + self.middle_third_count
+            + self.last_third_count
+            != self.ranked_metric_count
+        ):
+            raise ValueError(
+                "profile band counts must match ranked_metric_count"
+            )
+        return self
+
+
+class PeerProfileSet(BaseModel):
+    subject_symbol: str = Field(min_length=1)
+    axes: list[PeerProfileAxisSummary]
+
+    def metric_values(self) -> dict[str, float | None]:
+        result: dict[str, float | None] = {}
+        for axis in self.axes:
+            prefix = (
+                f"peer:{self.subject_symbol}:profile:"
+                f"{axis.axis.value}:"
+            )
+            result[f"{prefix}configured_metric_count"] = float(
+                axis.configured_metric_count
+            )
+            result[f"{prefix}ranked_metric_count"] = float(
+                axis.ranked_metric_count
+            )
+            result[f"{prefix}first_third_count"] = float(
+                axis.first_third_count
+            )
+            result[f"{prefix}middle_third_count"] = float(
+                axis.middle_third_count
+            )
+            result[f"{prefix}last_third_count"] = float(
+                axis.last_third_count
+            )
+            result[f"{prefix}unranked_count"] = float(axis.unranked_count)
+        return result
+
+    def get(
+        self,
+        axis: PeerProfileAxis | str,
+    ) -> PeerProfileAxisSummary | None:
+        axis_value = PeerProfileAxis(axis)
+        return next(
+            (
+                summary
+                for summary in self.axes
+                if summary.axis == axis_value
+            ),
+            None,
+        )
+
+
 def build_peer_comparison(
     subject: StockAnalysisDataBundle,
     peers: list[StockAnalysisDataBundle],
@@ -186,6 +297,33 @@ def build_peer_positioning(
     return PeerPositioningSet(
         subject_symbol=subject_symbol,
         positions=positions,
+    )
+
+
+def build_peer_profile(
+    positioning: PeerPositioningSet,
+) -> PeerProfileSet:
+    axes: list[PeerProfileAxisSummary] = []
+    for axis, metrics in PEER_PROFILE_METRICS.items():
+        profile_metrics = []
+        for metric in metrics:
+            position = positioning.get(metric)
+            if position is None:
+                raise PeerComparisonError(
+                    f"peer positioning is missing configured metric: {metric}"
+                )
+            profile_metrics.append(_profile_metric(position))
+
+        axes.append(
+            _profile_axis_summary(
+                axis,
+                profile_metrics,
+            )
+        )
+
+    return PeerProfileSet(
+        subject_symbol=positioning.subject_symbol,
+        axes=axes,
     )
 
 
@@ -249,6 +387,71 @@ def _metric_position(
             if subject_value is not None and peer_mean is not None
             else None
         ),
+    )
+
+
+def _profile_metric(
+    position: PeerMetricPosition,
+) -> PeerProfileMetric:
+    if position.rank is None or position.available_count < 2:
+        return PeerProfileMetric(
+            metric=position.metric,
+            rank=position.rank,
+            available_count=position.available_count,
+            rank_fraction=None,
+            band=PeerProfileBand.UNRANKED,
+        )
+
+    rank_fraction = (
+        (position.rank - 1)
+        / (position.available_count - 1)
+    )
+    if rank_fraction < (1 / 3):
+        band = PeerProfileBand.FIRST_THIRD
+    elif rank_fraction > (2 / 3):
+        band = PeerProfileBand.LAST_THIRD
+    else:
+        band = PeerProfileBand.MIDDLE_THIRD
+
+    return PeerProfileMetric(
+        metric=position.metric,
+        rank=position.rank,
+        available_count=position.available_count,
+        rank_fraction=rank_fraction,
+        band=band,
+    )
+
+
+def _profile_axis_summary(
+    axis: PeerProfileAxis,
+    metrics: list[PeerProfileMetric],
+) -> PeerProfileAxisSummary:
+    ranked = [
+        metric
+        for metric in metrics
+        if metric.band != PeerProfileBand.UNRANKED
+    ]
+    return PeerProfileAxisSummary(
+        axis=axis,
+        configured_metric_count=len(metrics),
+        ranked_metric_count=len(ranked),
+        first_third_count=sum(
+            metric.band == PeerProfileBand.FIRST_THIRD
+            for metric in metrics
+        ),
+        middle_third_count=sum(
+            metric.band == PeerProfileBand.MIDDLE_THIRD
+            for metric in metrics
+        ),
+        last_third_count=sum(
+            metric.band == PeerProfileBand.LAST_THIRD
+            for metric in metrics
+        ),
+        unranked_count=sum(
+            metric.band == PeerProfileBand.UNRANKED
+            for metric in metrics
+        ),
+        metrics=metrics,
     )
 
 
