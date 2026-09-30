@@ -10,7 +10,6 @@ from universal_stock_skill.analysis.peers import (
     build_peer_positioning,
 )
 
-
 AS_OF = datetime(2026, 9, 29, 12, 0, tzinfo=UTC)
 
 
